@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor Źródeł Danych</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d12;
+    --surface: #111520;
+    --surface2: #161b28;
+    --border: #1e2535;
+    --green: #00ff88;
+    --green-dim: rgba(0,255,136,0.12);
+    --yellow: #ffc107;
+    --yellow-dim: rgba(255,193,7,0.12);
+    --red: #ff3b5c;
+    --red-dim: rgba(255,59,92,0.12);
+    --blue: #4f8ef7;
+    --text: #c8d4e8;
+    --text-dim: #4a5568;
+    --text-bright: #eef2ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none; z-index: 1000;
+  }
+
+  header {
+    padding: 28px 40px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; background: var(--bg); z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.1rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text-bright);
+  }
+  .logo span { color: var(--green); }
+
+  .header-meta {
+    display: flex; gap: 28px; align-items: center;
+  }
+  .clock {
+    font-size: 0.75rem; color: var(--text-dim);
+  }
+  .clock strong { color: var(--green); }
+
+  .legend {
+    display: flex; gap: 16px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.7rem; color: var(--text-dim);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .main {
+    padding: 32px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+  }
+  .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 8px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.yellow { color: var(--yellow); }
+  .stat-value.red { color: var(--red); }
+  .stat-value.blue { color: var(--blue); }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::before {
+    content: '//';
+    color: var(--blue);
+  }
+
+  .section { margin-bottom: 36px; }
+
+  .sources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+  }
+
+  .source-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    transition: border-color 0.2s, transform 0.15s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .source-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .source-card.status-green::before { background: var(--green); }
+  .source-card.status-yellow::before { background: var(--yellow); }
+  .source-card.status-red::before { background: var(--red); }
+
+  .source-card.status-green { background: linear-gradient(135deg, var(--surface) 0%, rgba(0,255,136,0.03) 100%); }
+  .source-card.status-yellow { background: linear-gradient(135deg, var(--surface) 0%, rgba(255,193,7,0.03) 100%); }
+  .source-card.status-red { background: linear-gradient(135deg, var(--surface) 0%, rgba(255,59,92,0.03) 100%); }
+
+  .source-card:hover {
+    border-color: #2a3347;
+    transform: translateY(-1px);
+  }
+
+  .card-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600; font-size: 0.9rem;
+    color: var(--text-bright);
+    line-height: 1.3;
+  }
+  .card-url {
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .status-indicator {
+    display: flex; align-items: center; gap: 6px;
+    flex-shrink: 0;
+  }
+  .status-lamp {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .status-lamp::after {
+    content: '';
+    position: absolute; inset: -4px;
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  .lamp-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .lamp-green::after { background: var(--green); }
+  .lamp-yellow { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); animation: blink-yellow 1.8s ease-in-out infinite; }
+  .lamp-yellow::after { background: var(--yellow); }
+  .lamp-red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .lamp-red::after { background: var(--red); }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.6); opacity: 0.15; }
+  }
+  @keyframes blink-yellow {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--yellow); }
+    50% { opacity: 0.5; box-shadow: 0 0 3px var(--yellow); }
+  }
+
+  .status-text {
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .status-text.green { color: var(--green); }
+  .status-text.yellow { color: var(--yellow); }
+  .status-text.red { color: var(--red); }
+
+  .card-tags {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+  }
+  .tag {
+    font-size: 0.6rem; padding: 2px 7px;
+    border-radius: 2px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .tag.type-api { color: var(--blue); border-color: rgba(79,142,247,0.3); }
+  .tag.type-rss { color: #f97316; border-color: rgba(249,115,22,0.3); }
+  .tag.type-scraping { color: #a855f7; border-color: rgba(168,85,247,0.3); }
+  .tag.type-ocr { color: #06b6d4; border-color: rgba(6,182,212,0.3); }
+
+  .card-times {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 0.6rem;
+  }
+  .time-block { }
+  .time-label { color: var(--text-dim); margin-bottom: 2px; }
+  .time-value { color: var(--text); }
+
+  .error-msg {
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: rgba(255,59,92,0.07);
+    border: 1px solid rgba(255,59,92,0.2);
+    border-radius: 3px;
+    font-size: 0.6rem;
+    color: var(--red);
+  }
+  .warn-msg {
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: rgba(255,193,7,0.07);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 3px;
+    font-size: 0.6rem;
+    color: var(--yellow);
+  }
+
+  .refresh-btn {
+    position: absolute; bottom: 12px; right: 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 3px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .refresh-btn:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  .controls {
+    display: flex; gap: 10px; margin-bottom: 24px; align-items: center; flex-wrap: wrap;
+  }
+  .filter-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--surface2);
+    color: var(--text-bright);
+    border-color: #2a3347;
+  }
+  .filter-btn.active.f-green { color: var(--green); border-color: rgba(0,255,136,0.3); }
+  .filter-btn.active.f-yellow { color: var(--yellow); border-color: rgba(255,193,7,0.3); }
+  .filter-btn.active.f-red { color: var(--red); border-color: rgba(255,59,92,0.3); }
+
+  .refresh-all-btn {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 5px 14px;
+    background: var(--blue);
+    border: none;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .refresh-all-btn:hover { opacity: 0.85; }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease forwards;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .card-progress {
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .card-progress-bar {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 0.3s ease;
+  }
+  .bar-green { background: var(--green); }
+  .bar-yellow { background: var(--yellow); }
+  .bar-red { background: var(--red); }
+
+  .view-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-left: auto;
+  }
+  .view-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    padding: 5px 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 5px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .view-btn + .view-btn {
+    border-left: 1px solid var(--border);
+  }
+  .view-btn:hover { color: var(--text); background: var(--surface2); }
+  .view-btn.active { color: var(--blue); background: var(--surface2); }
+
+  /* ---- LIST VIEW ---- */
+  .list-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+  }
+  .list-table thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+  .list-table th {
+    text-align: left;
+    padding: 6px 10px;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .list-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+  .list-table tbody tr:hover { background: var(--surface2); }
+  .list-table td {
+    padding: 9px 10px;
+    vertical-align: middle;
+  }
+  .list-lamp-cell { width: 36px; text-align: center; }
+  .list-name { color: var(--text-bright); font-weight: 500; }
+  .list-url { color: var(--text-dim); font-size: 0.58rem; margin-top: 1px; }
+  .list-group { color: var(--text-dim); font-size: 0.65rem; }
+  .list-uptime { font-size: 0.65rem; }
+  .list-uptime.green { color: var(--green); }
+  .list-uptime.yellow { color: var(--yellow); }
+  .list-uptime.red { color: var(--red); }
+  .list-msg { font-size: 0.6rem; max-width: 260px; }
+  .list-msg.err { color: var(--red); }
+  .list-msg.warn { color: var(--yellow); }
+  .list-msg.ok { color: var(--text-dim); }
+  .list-refresh-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    padding: 2px 7px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .list-refresh-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+  .bar-mini {
+    width: 60px; height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+  .bar-mini-fill { height: 100%; border-radius: 2px; }
+
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">DATA<span>//</span>MONITOR</div>
+  <div class="header-meta">
+    <div class="legend">
+      <div class="legend-item"><div class="dot" style="background:var(--green)"></div> Dostępne</div>
+      <div class="legend-item"><div class="dot" style="background:var(--yellow)"></div> Ostrzeżenie</div>
+      <div class="legend-item"><div class="dot" style="background:var(--red)"></div> Niedostępne</div>
+    </div>
+    <div class="clock">SYS <strong id="clock">--:--:--</strong></div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="stats-row" id="stats"></div>
+
+  <div class="controls">
+    <button class="filter-btn active" onclick="setFilter('all', this)">Wszystkie</button>
+    <button class="filter-btn f-green" onclick="setFilter('green', this)">● Dostępne</button>
+    <button class="filter-btn f-yellow" onclick="setFilter('yellow', this)">● Ostrzeżenia</button>
+    <button class="filter-btn f-red" onclick="setFilter('red', this)">● Błędy</button>
+    <button class="filter-btn" onclick="setFilter('api', this)">API</button>
+    <button class="filter-btn" onclick="setFilter('rss', this)">RSS</button>
+    <button class="filter-btn" onclick="setFilter('scraping', this)">Scraping</button>
+    <button class="filter-btn" onclick="setFilter('ocr', this)">OCR</button>
+    <div class="view-toggle">
+      <button class="view-btn" id="btn-grid" onclick="setView('grid', this)" title="Widok kafelków">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0" y="0" width="6" height="6" rx="1" fill="currentColor"/><rect x="8" y="0" width="6" height="6" rx="1" fill="currentColor"/><rect x="0" y="8" width="6" height="6" rx="1" fill="currentColor"/><rect x="8" y="8" width="6" height="6" rx="1" fill="currentColor"/></svg>
+        Kafelki
+      </button>
+      <button class="view-btn active" id="btn-list" onclick="setView('list', this)" title="Widok listy">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="0" y="1" width="14" height="2" rx="1" fill="currentColor"/><rect x="0" y="6" width="14" height="2" rx="1" fill="currentColor"/><rect x="0" y="11" width="14" height="2" rx="1" fill="currentColor"/></svg>
+        Lista
+      </button>
+    </div>
+    <button class="refresh-all-btn" onclick="refreshAll()">↻ Odśwież Wszystkie</button>
+  </div>
+
+  <div id="sections"></div>
+</div>
+
+<script>
+const now = new Date();
+const fmt = (d) => d.toLocaleString('pl-PL', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const ago = (minutes) => {
+  const d = new Date(now - minutes * 60000);
+  return fmt(d);
+};
+
+const SOURCES = [
+  // --- RZĄD / PARLAMENT ---
+  {
+    id: 1, group: 'Parlament i Rząd',
+    name: 'Sejm RP – API',
+    url: 'api.sejm.gov.pl',
+    type: ['api'],
+    status: 'green',
+    lastCheck: ago(3),
+    lastFetch: ago(45),
+    uptime: 99,
+    desc: 'Otwarte API – kadencje, posłowie, głosowania, druki'
+  },
+  {
+    id: 2, group: 'Parlament i Rząd',
+    name: 'Senat RP – API',
+    url: 'api.senat.gov.pl',
+    type: ['api'],
+    status: 'yellow',
+    lastCheck: ago(5),
+    lastFetch: ago(180),
+    uptime: 87,
+    warning: 'Endpoint /senators zwraca 429 – przekroczono limit zapytań',
+    desc: 'API Senatu – senatorowie, uchwały, posiedzenia'
+  },
+  {
+    id: 3, group: 'Parlament i Rząd',
+    name: 'Ministerstwo Finansów – WWW',
+    url: 'mf.gov.pl/komunikaty',
+    type: ['scraping'],
+    status: 'green',
+    lastCheck: ago(8),
+    lastFetch: ago(120),
+    uptime: 96,
+    desc: 'Scraping komunikatów i aktualności MF'
+  },
+  {
+    id: 4, group: 'Parlament i Rząd',
+    name: 'Ministerstwo Sprawiedliwości – WWW',
+    url: 'ms.gov.pl/aktualnosci',
+    type: ['scraping'],
+    status: 'red',
+    lastCheck: ago(2),
+    lastFetch: ago(1440),
+    uptime: 61,
+    error: 'HTTP 503 Service Unavailable – brak odpowiedzi od 24h',
+    desc: 'Scraping aktualności Ministerstwa Sprawiedliwości'
+  },
+  {
+    id: 5, group: 'Parlament i Rząd',
+    name: 'Ministerstwo Cyfryzacji – RSS',
+    url: 'gov.pl/web/cyfryzacja/rss',
+    type: ['rss'],
+    status: 'green',
+    lastCheck: ago(1),
+    lastFetch: ago(60),
+    uptime: 99,
+    desc: 'Feed RSS – aktualności, komunikaty, przetargi'
+  },
+  {
+    id: 6, group: 'Parlament i Rząd',
+    name: 'Dziennik Ustaw – RSS',
+    url: 'dziennikustaw.gov.pl/rss',
+    type: ['rss'],
+    status: 'green',
+    lastCheck: ago(4),
+    lastFetch: ago(30),
+    uptime: 100,
+    desc: 'Nowe akty prawne, rozporządzenia, nowelizacje'
+  },
+  {
+    id: 7, group: 'Parlament i Rząd',
+    name: 'Premier.gov.pl – RSS',
+    url: 'premier.gov.pl/feed',
+    type: ['rss'],
+    status: 'yellow',
+    lastCheck: ago(6),
+    lastFetch: ago(240),
+    uptime: 92,
+    warning: 'Feed zwraca nieprawidłowy XML – brakujące tagi <pubDate>',
+    desc: 'Komunikaty i konferencje prasowe Kancelarii Premiera'
+  },
+
+  // --- PRAWO I DOKUMENTY ---
+  {
+    id: 8, group: 'Prawo i Dokumenty',
+    name: 'ISAP – API aktów prawnych',
+    url: 'isap.sejm.gov.pl/api/v1',
+    type: ['api'],
+    status: 'green',
+    lastCheck: ago(2),
+    lastFetch: ago(90),
+    uptime: 98,
+    desc: 'Internetowy System Aktów Prawnych – REST API'
+  },
+  {
+    id: 9, group: 'Prawo i Dokumenty',
+    name: 'Rządowe Centrum Legislacji – PDF',
+    url: 'rcl.gov.pl/projekty-ustaw',
+    type: ['scraping', 'ocr'],
+    status: 'yellow',
+    lastCheck: ago(15),
+    lastFetch: ago(360),
+    uptime: 78,
+    warning: 'OCR: 3 dokumenty z niską pewnością rozpoznania (<70%) – wymagają weryfikacji',
+    desc: 'Scraping + OCR projektów ustaw w formacie PDF'
+  },
+  {
+    id: 10, group: 'Prawo i Dokumenty',
+    name: 'KRS – Wyszukiwarka podmiotów',
+    url: 'krs.ms.gov.pl',
+    type: ['scraping'],
+    status: 'red',
+    lastCheck: ago(10),
+    lastFetch: ago(2880),
+    uptime: 44,
+    error: 'Connection timeout po 30s – serwer niedostępny',
+    desc: 'Scraping danych podmiotów z Krajowego Rejestru Sądowego'
+  },
+
+  // --- SERWISY INFORMACYJNE ---
+  {
+    id: 11, group: 'Serwisy Informacyjne',
+    name: 'Onet – RSS Wiadomości',
+    url: 'onet.pl/rss/najnowsze',
+    type: ['rss'],
+    status: 'green',
+    lastCheck: ago(2),
+    lastFetch: ago(15),
+    uptime: 99,
+    desc: 'Główny feed wiadomości portalu Onet'
+  },
+  {
+    id: 12, group: 'Serwisy Informacyjne',
+    name: 'Interia – RSS',
+    url: 'fakty.interia.pl/rss',
+    type: ['rss'],
+    status: 'green',
+    lastCheck: ago(3),
+    lastFetch: ago(20),
+    uptime: 97,
+    desc: 'Aktualności z portalu Interia.pl'
+  },
+  {
+    id: 13, group: 'Serwisy Informacyjne',
+    name: 'WP.pl – RSS Wiadomości',
+    url: 'wiadomosci.wp.pl/rss',
+    type: ['rss'],
+    status: 'green',
+    lastCheck: ago(1),
+    lastFetch: ago(10),
+    uptime: 99,
+    desc: 'Feed główny Wirtualnej Polski'
+  },
+  {
+    id: 14, group: 'Serwisy Informacyjne',
+    name: 'TVN24 – Scraping',
+    url: 'tvn24.pl/najnowsze',
+    type: ['scraping'],
+    status: 'yellow',
+    lastCheck: ago(7),
+    lastFetch: ago(90),
+    uptime: 85,
+    warning: 'Zmiana struktury HTML – selektor .article-title nie odnajduje elementów',
+    desc: 'Scraping najnowszych artykułów TVN24'
+  },
+  {
+    id: 15, group: 'Serwisy Informacyjne',
+    name: 'Polsat News – RSS',
+    url: 'polsatnews.pl/rss',
+    type: ['rss'],
+    status: 'green',
+    lastCheck: ago(4),
+    lastFetch: ago(25),
+    uptime: 98,
+    desc: 'Wiadomości Polsat News'
+  },
+  {
+    id: 16, group: 'Serwisy Informacyjne',
+    name: 'Rzeczpospolita – WWW',
+    url: 'rp.pl/polityka',
+    type: ['scraping'],
+    status: 'red',
+    lastCheck: ago(5),
+    lastFetch: ago(720),
+    uptime: 30,
+    error: 'Cloudflare Bot Challenge (status 403) – wymagana zmiana strategii scraping',
+    desc: 'Scraping działu politycznego Rzeczpospolitej'
+  },
+  {
+    id: 17, group: 'Serwisy Informacyjne',
+    name: 'Gazeta.pl – RSS',
+    url: 'wiadomosci.gazeta.pl/rss',
+    type: ['rss'],
+    status: 'green',
+    lastCheck: ago(2),
+    lastFetch: ago(18),
+    uptime: 96,
+    desc: 'Aktualności Gazeta.pl – wiadomości krajowe'
+  },
+
+  // --- DANE GOSPODARCZE ---
+  {
+    id: 18, group: 'Dane Gospodarcze',
+    name: 'GUS – API BDL',
+    url: 'bdl.stat.gov.pl/api/v1',
+    type: ['api'],
+    status: 'green',
+    lastCheck: ago(10),
+    lastFetch: ago(1440),
+    uptime: 99,
+    desc: 'Bank Danych Lokalnych GUS – REST API (statystyki krajowe)'
+  },
+  {
+    id: 19, group: 'Dane Gospodarcze',
+    name: 'NBP – API Kursów Walut',
+    url: 'api.nbp.pl/api',
+    type: ['api'],
+    status: 'green',
+    lastCheck: ago(1),
+    lastFetch: ago(5),
+    uptime: 100,
+    desc: 'Aktualne i historyczne kursy walut NBP'
+  },
+  {
+    id: 20, group: 'Dane Gospodarcze',
+    name: 'UOKiK – RSS Komunikaty',
+    url: 'uokik.gov.pl/rss',
+    type: ['rss'],
+    status: 'yellow',
+    lastCheck: ago(12),
+    lastFetch: ago(480),
+    uptime: 80,
+    warning: 'Feed nie był aktualizowany od 8h – możliwa awaria wydawcy',
+    desc: 'Decyzje i komunikaty Urzędu Ochrony Konkurencji'
+  },
+  {
+    id: 21, group: 'Dane Gospodarcze',
+    name: 'ZUS – Dokumenty PDF',
+    url: 'zus.pl/baza-wiedzy/akty-prawne',
+    type: ['scraping', 'ocr'],
+    status: 'green',
+    lastCheck: ago(20),
+    lastFetch: ago(720),
+    uptime: 94,
+    desc: 'Scraping + OCR aktów prawnych ZUS (formularze, instrukcje)'
+  },
+];
+
+let currentFilter = 'all';
+let currentView = 'list';
+
+function setView(v, btn) {
+  currentView = v;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSections();
+}
+
+
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('pl-PL');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function getStatusLabel(s) {
+  return s === 'green' ? 'OK' : s === 'yellow' ? 'UWAGA' : 'BŁĄD';
+}
+
+function renderStats() {
+  const green = SOURCES.filter(s => s.status === 'green').length;
+  const yellow = SOURCES.filter(s => s.status === 'yellow').length;
+  const red = SOURCES.filter(s => s.status === 'red').length;
+  const total = SOURCES.length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Wszystkie źródła</div>
+      <div class="stat-value blue">${total}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Dostępne</div>
+      <div class="stat-value green">${green}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Ostrzeżenia</div>
+      <div class="stat-value yellow">${yellow}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Niedostępne</div>
+      <div class="stat-value red">${red}</div>
+    </div>
+  `;
+}
+
+function renderCard(src) {
+  const statusClass = `status-${src.status}`;
+  const lampClass = `lamp-${src.status}`;
+  const statusTxt = getStatusLabel(src.status);
+  const types = src.type.map(t => `<span class="tag type-${t}">${t.toUpperCase()}</span>`).join('');
+  const errorBlock = src.error ? `<div class="error-msg">⚠ ${src.error}</div>` : '';
+  const warnBlock = src.warning ? `<div class="warn-msg">⚡ ${src.warning}</div>` : '';
+  const progress = src.uptime;
+  const barClass = src.status === 'green' ? 'bar-green' : src.status === 'yellow' ? 'bar-yellow' : 'bar-red';
+
+  return `
+    <div class="source-card ${statusClass} fade-in" id="card-${src.id}" data-status="${src.status}" data-type="${src.type.join(',')}">
+      <div class="card-top">
+        <div>
+          <div class="card-name">${src.name}</div>
+          <div class="card-url">${src.url}</div>
+        </div>
+        <div class="status-indicator">
+          <div class="status-lamp ${lampClass}"></div>
+          <span class="status-text ${src.status}">${statusTxt}</span>
+        </div>
+      </div>
+      <div class="card-tags">${types}</div>
+      <div class="card-times">
+        <div class="time-block">
+          <div class="time-label">OSTATNI TEST</div>
+          <div class="time-value" id="check-${src.id}">${src.lastCheck}</div>
+        </div>
+        <div class="time-block">
+          <div class="time-label">OSTATNIE POBRANIE</div>
+          <div class="time-value">${src.lastFetch}</div>
+        </div>
+      </div>
+      ${errorBlock}${warnBlock}
+      <div class="card-progress">
+        <div class="card-progress-bar ${barClass}" style="width:${progress}%"></div>
+      </div>
+      <button class="refresh-btn" onclick="refreshCard(${src.id}, event)">↻ testuj</button>
+    </div>
+  `;
+}
+
+function renderRow(src) {
+  const lampClass = `lamp-${src.status}`;
+  const statusTxt = getStatusLabel(src.status);
+  const types = src.type.map(t => `<span class="tag type-${t}">${t.toUpperCase()}</span>`).join('');
+  const barClass = src.status === 'green' ? 'bar-green' : src.status === 'yellow' ? 'bar-yellow' : 'bar-red';
+  let msgHtml = '';
+  if (src.error) msgHtml = `<div class="list-msg err">⚠ ${src.error}</div>`;
+  else if (src.warning) msgHtml = `<div class="list-msg warn">⚡ ${src.warning}</div>`;
+  else msgHtml = `<div class="list-msg ok">${src.desc}</div>`;
+
+  return `
+    <tr class="fade-in" id="row-${src.id}">
+      <td class="list-lamp-cell"><div class="status-lamp ${lampClass}" style="margin:0 auto"></div></td>
+      <td>
+        <div class="list-name">${src.name}</div>
+        <div class="list-url">${src.url}</div>
+      </td>
+      <td class="list-group">${src.group}</td>
+      <td><div class="card-tags" style="flex-wrap:nowrap">${types}</div></td>
+      <td>${msgHtml}</td>
+      <td>
+        <div class="list-uptime ${src.status}">
+          <div class="bar-mini"><div class="bar-mini-fill ${barClass}" style="width:${src.uptime}%"></div></div>
+          ${src.uptime}%
+        </div>
+      </td>
+      <td style="font-size:0.6rem;color:var(--text-dim);white-space:nowrap" id="check-${src.id}">${src.lastCheck}</td>
+      <td style="font-size:0.6rem;color:var(--text-dim);white-space:nowrap">${src.lastFetch}</td>
+      <td><button class="list-refresh-btn" onclick="refreshCard(${src.id}, event)">↻ testuj</button></td>
+    </tr>
+  `;
+}
+
+function renderSections() {
+  const groups = {};
+  const filtered = SOURCES.filter(s => {
+    if (currentFilter === 'all') return true;
+    if (['green','yellow','red'].includes(currentFilter)) return s.status === currentFilter;
+    return s.type.includes(currentFilter);
+  });
+
+  filtered.forEach(s => {
+    if (!groups[s.group]) groups[s.group] = [];
+    groups[s.group].push(s);
+  });
+
+  if (!filtered.length) {
+    document.getElementById('sections').innerHTML = `<div style="color:var(--text-dim);font-size:0.8rem;padding:40px 0;text-align:center">Brak źródeł spełniających kryteria filtra.</div>`;
+    return;
+  }
+
+  let html = '';
+
+  if (currentView === 'grid') {
+    Object.entries(groups).forEach(([gname, sources]) => {
+      html += `
+        <div class="section">
+          <div class="section-title">${gname} <span style="color:var(--text-dim);margin-left:auto">${sources.length} źródeł</span></div>
+          <div class="sources-grid">
+            ${sources.map(renderCard).join('')}
+          </div>
+        </div>
+      `;
+    });
+  } else {
+    // List view – all groups in one table, with group separators
+    html = `<div class="section"><table class="list-table">
+      <thead><tr>
+        <th></th>
+        <th>Nazwa / URL</th>
+        <th>Grupa</th>
+        <th>Typ</th>
+        <th>Status / Opis</th>
+        <th>Uptime</th>
+        <th>Ostatni test</th>
+        <th>Ostatnie pobranie</th>
+        <th></th>
+      </tr></thead>
+      <tbody>`;
+
+    Object.entries(groups).forEach(([gname, sources]) => {
+      html += `<tr><td colspan="9" style="padding:10px 10px 4px;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--blue);border-bottom:1px solid var(--border)">//&nbsp;${gname} <span style="color:var(--text-dim)">(${sources.length})</span></td></tr>`;
+      html += sources.map(renderRow).join('');
+    });
+
+    html += `</tbody></table></div>`;
+  }
+
+  document.getElementById('sections').innerHTML = html;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSections();
+}
+
+function refreshCard(id, e) {
+  e.stopPropagation();
+  const btn = e.target;
+  btn.disabled = true;
+  const origText = btn.textContent;
+  btn.textContent = '↻';
+  btn.style.animation = 'spin 0.8s linear infinite';
+  setTimeout(() => {
+    btn.style.animation = '';
+    btn.textContent = origText;
+    btn.disabled = false;
+    const el = document.getElementById(`check-${id}`);
+    if (el) el.textContent = new Date().toLocaleString('pl-PL');
+  }, 1200 + Math.random() * 800);
+}
+
+function refreshAll() {
+  const btn = document.querySelector('.refresh-all-btn');
+  btn.textContent = '↻ Testowanie...';
+  btn.disabled = true;
+  let done = 0;
+  SOURCES.forEach((src, i) => {
+    setTimeout(() => {
+      const el = document.getElementById(`check-${src.id}`);
+      if (el) el.textContent = new Date().toLocaleString('pl-PL');
+      done++;
+      if (done === SOURCES.length) {
+        btn.textContent = '↻ Odśwież Wszystkie';
+        btn.disabled = false;
+      }
+    }, i * 120 + Math.random() * 200);
+  });
+}
+
+renderStats();
+renderSections();
+</script>
+</body>
+</html>

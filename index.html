@@ -8,6 +8,7 @@
 body { background: #050a14; font-family: 'Courier New', monospace; color: #c8d8f0; overflow: hidden; height: 100vh; }
 #globe-container { width: 100vw; height: 100vh; }
 
+/* ── STATS BAR ── */
 #stats-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: rgba(5,10,20,0.80);
@@ -19,175 +20,161 @@ body { background: #050a14; font-family: 'Courier New', monospace; color: #c8d8f
 .stat-val { font-size: 16px; color: #5bf; font-weight: 700; letter-spacing: 1px; }
 .stat-lbl { font-size: 9px; color: rgba(100,150,200,0.5); letter-spacing: 2px; text-transform: uppercase; }
 
-#logo {
-  position: fixed; top: 18px; left: 24px; z-index: 10;
-}
+/* ── LOGO ── */
+#logo { position: fixed; top: 18px; left: 24px; z-index: 10; }
 #logo h1 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: #5bf;
-  text-transform: uppercase;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 22px; font-weight: 700; letter-spacing: 3px;
+  color: #5bf; text-transform: uppercase;
 }
-#logo p  { font-size: 10px; color: rgba(100,160,220,0.5); letter-spacing: 3px; margin-top: 2px; text-transform: uppercase; }
+#logo p { font-size: 10px; color: rgba(100,160,220,0.5); letter-spacing: 3px; margin-top: 2px; text-transform: uppercase; }
 
 #selected-country-name {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 6px 12px;
-  border: 1px solid rgba(115, 190, 255, 0.3);
-  border-radius: 999px;
-  background: rgba(8, 18, 32, 0.62);
-  color: rgba(225, 241, 255, 0.9);
-  font-size: 11px;
-  letter-spacing: 1.6px;
-  text-transform: none;
+  display: inline-flex; align-items: center;
+  min-height: 28px; padding: 6px 12px;
+  border: 1px solid rgba(115,190,255,0.3); border-radius: 999px;
+  background: rgba(8,18,32,0.62);
+  color: rgba(225,241,255,0.9); font-size: 11px;
+  letter-spacing: 1.6px; text-transform: none;
 }
 
+/* ── LAYER PANEL ── */
 #layer-panel {
   position: fixed; top: 92px; left: 24px; z-index: 10;
-  display: grid; gap: 12px;
-  width: min(280px, calc(100vw - 48px));
+  display: grid; gap: 10px;
+  width: min(260px, calc(100vw - 48px));
 }
 
 .layer-tile {
   position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid rgba(120, 180, 255, 0.24);
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(11, 20, 36, 0.72), rgba(18, 39, 74, 0.34));
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
-  backdrop-filter: blur(14px);
-  color: #dcecff;
+  display: grid; grid-template-columns: auto 1fr auto;
+  align-items: center; gap: 10px;
+  width: 100%; padding: 11px 14px;
+  border: 1px solid rgba(120,180,255,0.22); border-radius: 14px;
+  background: linear-gradient(135deg, rgba(11,20,36,0.72), rgba(18,39,74,0.34));
+  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+  backdrop-filter: blur(14px); color: #dcecff;
   cursor: pointer;
-  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease, opacity 0.25s ease;
+  transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, opacity 0.22s ease;
 }
-
-.layer-tile:hover {
-  transform: translateX(4px);
-  border-color: rgba(120, 190, 255, 0.5);
-}
-
-.layer-tile.is-off {
-  opacity: 0.58;
-  background: linear-gradient(135deg, rgba(8, 14, 24, 0.5), rgba(10, 22, 40, 0.24));
-}
+.layer-tile:hover { transform: translateX(4px); border-color: rgba(120,190,255,0.5); }
+.layer-tile.is-off { opacity: 0.52; background: linear-gradient(135deg, rgba(8,14,24,0.5), rgba(10,22,40,0.24)); }
 
 .tile-emoji {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  font-size: 22px;
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  border-radius: 10px; background: rgba(255,255,255,0.08); font-size: 20px;
 }
-
-.tile-copy {
-  display: grid;
-  gap: 3px;
-  text-align: left;
-}
-
-.tile-title {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-}
-
-.tile-meta {
-  font-size: 10px;
-  color: rgba(185, 214, 255, 0.68);
-  letter-spacing: 1.2px;
-}
-
+.tile-copy { display: grid; gap: 2px; text-align: left; }
+.tile-title { font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; }
+.tile-meta { font-size: 9px; color: rgba(185,214,255,0.65); letter-spacing: 1px; }
 .tile-state {
-  min-width: 52px;
-  padding: 7px 9px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  text-align: center;
+  min-width: 46px; padding: 5px 8px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06);
+  font-size: 9px; font-weight: 700; letter-spacing: 1.8px;
+  text-transform: uppercase; text-align: center;
 }
-
-.layer-tile[data-layer="camera"] .tile-emoji { box-shadow: inset 0 0 0 1px rgba(255, 122, 89, 0.25); }
-.layer-tile[data-layer="capital"] .tile-emoji { box-shadow: inset 0 0 0 1px rgba(0, 255, 136, 0.25); }
-.layer-tile[data-layer="city"] .tile-emoji { box-shadow: inset 0 0 0 1px rgba(255, 95, 95, 0.25); }
-.layer-tile[data-layer="airport"] .tile-emoji { box-shadow: inset 0 0 0 1px rgba(76, 214, 255, 0.3); }
 
 .tile-action-btn {
-  margin-top: 6px;
-  width: fit-content;
-  padding: 5px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(128, 220, 255, 0.45);
-  background: rgba(54, 132, 168, 0.28);
-  color: #bfefff;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  margin-top: 5px; width: fit-content;
+  padding: 4px 9px; border-radius: 999px;
+  border: 1px solid rgba(128,220,255,0.45); background: rgba(54,132,168,0.28);
+  color: #bfefff; font-size: 9px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
 }
+.tile-action-btn:hover { background: rgba(74,168,214,0.42); border-color: rgba(140,224,255,0.8); }
+.tile-action-btn.is-active { background: rgba(64,219,153,0.22); border-color: rgba(90,255,194,0.8); color: #c8ffe9; }
 
-.tile-action-btn:hover {
-  background: rgba(74, 168, 214, 0.42);
-  border-color: rgba(140, 224, 255, 0.8);
+/* ── COUNTRY DETAIL PANEL (right) ── */
+#country-panel {
+  position: fixed; top: 0; right: -380px; bottom: 0;
+  width: 360px; z-index: 20;
+  background: linear-gradient(180deg, rgba(5,12,28,0.97) 0%, rgba(8,18,40,0.97) 100%);
+  border-left: 1px solid rgba(80,160,255,0.22);
+  backdrop-filter: blur(18px);
+  display: flex; flex-direction: column; gap: 0;
+  transition: right 0.38s cubic-bezier(0.22,0.61,0.36,1);
+  overflow-y: auto;
 }
+#country-panel.visible { right: 0; }
 
-.tile-action-btn.is-active {
-  background: rgba(64, 219, 153, 0.22);
-  border-color: rgba(90, 255, 194, 0.8);
-  color: #c8ffe9;
+#cp-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid rgba(100,160,255,0.3); background: rgba(20,40,80,0.5);
+  color: #7ab4ff; font-size: 16px; cursor: pointer;
+  display: grid; place-items: center;
+  transition: background 0.2s, border-color 0.2s;
 }
+#cp-close:hover { background: rgba(40,80,160,0.6); border-color: rgba(140,200,255,0.6); }
 
+#cp-header {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(60,120,220,0.18);
+}
+#cp-flag { font-size: 48px; line-height: 1; margin-bottom: 10px; }
+#cp-name { font-size: 20px; font-weight: 700; letter-spacing: 2px; color: #7cd4ff; text-transform: uppercase; }
+#cp-subtitle { font-size: 10px; color: rgba(140,180,240,0.55); letter-spacing: 2px; margin-top: 4px; }
+
+#cp-stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; padding: 18px 20px;
+  border-bottom: 1px solid rgba(60,120,220,0.18);
+}
+.cp-stat-card {
+  padding: 12px 14px; border-radius: 12px;
+  background: rgba(20,40,80,0.38);
+  border: 1px solid rgba(80,140,255,0.18);
+}
+.cp-stat-val { font-size: 22px; font-weight: 700; color: #5bf; letter-spacing: 1px; }
+.cp-stat-lbl { font-size: 9px; color: rgba(140,180,240,0.55); letter-spacing: 1.8px; text-transform: uppercase; margin-top: 3px; }
+
+.cp-section { padding: 14px 20px; border-bottom: 1px solid rgba(60,120,220,0.12); }
+.cp-section-title {
+  font-size: 9px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(100,160,255,0.6); margin-bottom: 10px;
+}
+.cp-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  background: rgba(15,30,60,0.4); margin-bottom: 6px;
+  border: 1px solid rgba(60,120,200,0.15);
+  font-size: 11px; color: #c8d8f0;
+}
+.cp-item-icon { font-size: 15px; flex-shrink: 0; }
+.cp-item-name { flex: 1; font-weight: 600; letter-spacing: 0.5px; }
+.cp-item-tag {
+  font-size: 8px; padding: 3px 7px; border-radius: 999px;
+  font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+}
+.tag-live { background: rgba(255,60,60,0.18); color: #ff7070; border: 1px solid rgba(255,60,60,0.3); }
+.tag-active { background: rgba(0,255,120,0.12); color: #40ff90; border: 1px solid rgba(0,255,120,0.25); }
+.tag-orbit { background: rgba(80,200,255,0.12); color: #60ccff; border: 1px solid rgba(80,200,255,0.25); }
+.tag-nuclear { background: rgba(255,200,0,0.12); color: #ffd050; border: 1px solid rgba(255,200,0,0.25); }
+.tag-naval { background: rgba(60,120,255,0.15); color: #80a0ff; border: 1px solid rgba(60,120,255,0.3); }
+.tag-military { background: rgba(180,80,255,0.12); color: #c880ff; border: 1px solid rgba(180,80,255,0.25); }
+
+.cp-empty { font-size: 10px; color: rgba(120,160,220,0.35); font-style: italic; padding: 4px 0; }
+
+/* ── EMOJI ON GLOBE ── */
 .globe-emoji {
-  font-size: 16.8px;
-  line-height: 1;
-  filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.35));
-  transform: translate(-50%, -50%) scale(var(--emoji-scale, 1));
-  transform-origin: center;
-  opacity: var(--emoji-opacity, 1);
-  user-select: none;
-  pointer-events: none;
-  will-change: transform, opacity;
+  font-size: 16px; line-height: 1;
+  transform: translate(-50%,-50%) scale(var(--emoji-scale,1));
+  opacity: var(--emoji-opacity,1);
+  user-select: none; pointer-events: none; will-change: transform,opacity;
 }
+
+/* ── SATELLITE ORBIT ANIMATION ── */
+@keyframes orbitPulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+.sat-label { animation: orbitPulse 2s ease-in-out infinite; }
 
 @media (max-width: 760px) {
   #logo { left: 16px; top: 14px; }
-  #layer-panel {
-    top: auto;
-    bottom: 78px;
-    left: 16px;
-    right: 16px;
-    width: auto;
-  }
-
-  .layer-tile {
-    padding: 12px 14px;
-    grid-template-columns: auto 1fr auto;
-  }
-
-  #stats-bar {
-    padding: 8px 14px;
-    gap: 18px;
-    overflow-x: auto;
-  }
+  #layer-panel { top: auto; bottom: 78px; left: 16px; right: 16px; width: auto; }
+  .layer-tile { padding: 10px 12px; }
+  #stats-bar { padding: 8px 14px; gap: 18px; overflow-x: auto; }
+  #country-panel { width: 100vw; right: -100vw; }
 }
 </style>
 </head>
@@ -201,26 +188,17 @@ body { background: #050a14; font-family: 'Courier New', monospace; color: #c8d8f
 <div id="layer-panel">
   <button class="layer-tile is-on" data-layer="camera" type="button" aria-pressed="true">
     <span class="tile-emoji">📹</span>
-    <span class="tile-copy">
-      <span class="tile-title">Camera</span>
-      <span class="tile-meta">Warstwa kamer live</span>
-    </span>
+    <span class="tile-copy"><span class="tile-title">Camera</span><span class="tile-meta">Kamery CCTV live</span></span>
     <span class="tile-state">ON</span>
   </button>
   <button class="layer-tile is-on" data-layer="capital" type="button" aria-pressed="true">
     <span class="tile-emoji">🏛️</span>
-    <span class="tile-copy">
-      <span class="tile-title">Capital</span>
-      <span class="tile-meta">Stolice i centra państwowe</span>
-    </span>
+    <span class="tile-copy"><span class="tile-title">Capital</span><span class="tile-meta">Stolice państw</span></span>
     <span class="tile-state">ON</span>
   </button>
   <button class="layer-tile is-on" data-layer="city" type="button" aria-pressed="true">
     <span class="tile-emoji">🏙️</span>
-    <span class="tile-copy">
-      <span class="tile-title">City</span>
-      <span class="tile-meta">Największe aglomeracje</span>
-    </span>
+    <span class="tile-copy"><span class="tile-title">City</span><span class="tile-meta">Największe aglomeracje</span></span>
     <span class="tile-state">ON</span>
   </button>
   <div class="layer-tile is-on" data-layer="airport" role="button" tabindex="0" aria-pressed="true">
@@ -232,6 +210,47 @@ body { background: #050a14; font-family: 'Courier New', monospace; color: #c8d8f
     </span>
     <span class="tile-state">ON</span>
   </div>
+  <button class="layer-tile is-on" data-layer="satellite" type="button" aria-pressed="true">
+    <span class="tile-emoji">🛰️</span>
+    <span class="tile-copy"><span class="tile-title">Satellite</span><span class="tile-meta">Orbity i sieci satelitarne</span></span>
+    <span class="tile-state">ON</span>
+  </button>
+  <button class="layer-tile is-on" data-layer="military" type="button" aria-pressed="true">
+    <span class="tile-emoji">⚓</span>
+    <span class="tile-copy"><span class="tile-title">Military</span><span class="tile-meta">Bazy wojskowe</span></span>
+    <span class="tile-state">ON</span>
+  </button>
+  <button class="layer-tile is-on" data-layer="naval" type="button" aria-pressed="true">
+    <span class="tile-emoji">🌊</span>
+    <span class="tile-copy"><span class="tile-title">Naval</span><span class="tile-meta">Floty morskie</span></span>
+    <span class="tile-state">ON</span>
+  </button>
+  <button class="layer-tile is-on" data-layer="nuclear" type="button" aria-pressed="true">
+    <span class="tile-emoji">☢️</span>
+    <span class="tile-copy"><span class="tile-title">Nuclear</span><span class="tile-meta">Elektrownie jądrowe</span></span>
+    <span class="tile-state">ON</span>
+  </button>
+</div>
+
+<!-- Country detail panel -->
+<div id="country-panel">
+  <button id="cp-close" title="Zamknij">✕</button>
+  <div id="cp-header">
+    <div id="cp-flag">🌍</div>
+    <div id="cp-name">—</div>
+    <div id="cp-subtitle">BRAK DANYCH</div>
+  </div>
+  <div id="cp-stats-grid">
+    <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-capitals">0</div><div class="cp-stat-lbl">Stolice</div></div>
+    <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-cities">0</div><div class="cp-stat-lbl">Miasta</div></div>
+    <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-cams">0</div><div class="cp-stat-lbl">Kamery</div></div>
+    <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-airports">0</div><div class="cp-stat-lbl">Lotniska</div></div>
+    <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-military">0</div><div class="cp-stat-lbl">Bazy wojsk.</div></div>
+    <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-naval">0</div><div class="cp-stat-lbl">Okręty</div></div>
+    <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-nuclear">0</div><div class="cp-stat-lbl">Reaktory</div></div>
+    <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-satellites">0</div><div class="cp-stat-lbl">Satelity</div></div>
+  </div>
+  <div id="cp-details"></div>
 </div>
 
 <div id="globe-container"></div>
@@ -241,11 +260,18 @@ body { background: #050a14; font-family: 'Courier New', monospace; color: #c8d8f
   <div class="stat"><div class="stat-val" id="s-cities">0</div><div class="stat-lbl">Miasta</div></div>
   <div class="stat"><div class="stat-val" id="s-cams">0</div><div class="stat-lbl">Kamery</div></div>
   <div class="stat"><div class="stat-val" id="s-airports">0</div><div class="stat-lbl">Lotniska</div></div>
+  <div class="stat"><div class="stat-val" id="s-military">0</div><div class="stat-lbl">Bazy</div></div>
+  <div class="stat"><div class="stat-val" id="s-naval">0</div><div class="stat-lbl">Okręty</div></div>
+  <div class="stat"><div class="stat-val" id="s-nuclear">0</div><div class="stat-lbl">Reaktory</div></div>
+  <div class="stat"><div class="stat-val" id="s-satellites">0</div><div class="stat-lbl">Satelity</div></div>
 </div>
 
 <script src="https://unpkg.com/globe.gl@2/dist/globe.gl.min.js"></script>
 <script>
 
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
 const capitals = [
   { name:'Warszawa',     country:'Polska',         lat:52.23,  lng:21.01,  type:'capital' },
   { name:'Berlin',       country:'Niemcy',          lat:52.52,  lng:13.40,  type:'capital' },
@@ -312,13 +338,11 @@ const bigCities = [
   { name:'Monachium',    country:'Niemcy',    lat:48.14,  lng:11.58,  type:'city', pop:'1.5M' },
   { name:'Barcelona',    country:'Hiszpania', lat:41.39,  lng:2.15,   type:'city', pop:'1.6M' },
   { name:'Mediolan',     country:'Włochy',    lat:45.46,  lng:9.19,   type:'city', pop:'1.4M' },
-  { name:'Manchester',   country:'UK',        lat:53.48,  lng:-2.24,  type:'city', pop:'553K' },
+  { name:'Manchester',   country:'Wielka Brytania', lat:53.48, lng:-2.24, type:'city', pop:'553K' },
   { name:'Sankt Petersburg',country:'Rosja',  lat:59.95,  lng:30.32,  type:'city', pop:'5.4M' },
   { name:'Istanbul',     country:'Turcja',    lat:41.01,  lng:28.95,  type:'city', pop:'15.5M' },
-  { name:'Lagos',        country:'Nigeria',   lat:6.52,   lng:3.38,   type:'city', pop:'14.8M' },
   { name:'Kinszasa',     country:'DRK',       lat:-4.32,  lng:15.32,  type:'city', pop:'14.3M' },
   { name:'Johannesburg', country:'RPA',       lat:-26.20, lng:28.04,  type:'city', pop:'5.6M' },
-  { name:'Kalkuta',      country:'Indie',     lat:22.57,  lng:88.36,  type:'city', pop:'14.9M' },
   { name:'Bombaj',       country:'Indie',     lat:19.08,  lng:72.88,  type:'city', pop:'20.7M' },
   { name:'Bangalore',    country:'Indie',     lat:12.97,  lng:77.59,  type:'city', pop:'12.5M' },
   { name:'Szanghaj',     country:'Chiny',     lat:31.23,  lng:121.47, type:'city', pop:'24.1M' },
@@ -328,239 +352,324 @@ const bigCities = [
   { name:'Karachi',      country:'Pakistan',  lat:24.86,  lng:67.01,  type:'city', pop:'14.9M' },
   { name:'Dhaka',        country:'Bangladesz',lat:23.72,  lng:90.41,  type:'city', pop:'21.0M' },
   { name:'Ho Chi Minh',  country:'Wietnam',   lat:10.82,  lng:106.63, type:'city', pop:'8.9M' },
-  { name:'Chongqing',    country:'Chiny',     lat:29.56,  lng:106.55, type:'city', pop:'8.8M' },
-  { name:'Meksyk',       country:'Meksyk',    lat:19.43,  lng:-99.13, type:'city', pop:'9.2M' },
   { name:'Sydney',       country:'Australia', lat:-33.87, lng:151.21, type:'city', pop:'5.3M' },
   { name:'Melbourne',    country:'Australia', lat:-37.81, lng:144.96, type:'city', pop:'5.1M' },
   { name:'Dubaj',        country:'ZEA',       lat:25.20,  lng:55.27,  type:'city', pop:'3.5M' },
   { name:'Casablanca',   country:'Maroko',    lat:33.59,  lng:-7.62,  type:'city', pop:'3.7M' },
-  { name:'Aleksandria',  country:'Egipt',     lat:31.20,  lng:29.92,  type:'city', pop:'5.2M' },
   { name:'Kraków',       country:'Polska',    lat:50.06,  lng:19.94,  type:'city', pop:'780K' },
   { name:'Wrocław',      country:'Polska',    lat:51.11,  lng:17.04,  type:'city', pop:'640K' },
 ];
 
 const liveCameras = [
-  { name:'London CCTV Grid', country:'Wielka Brytania', lat:51.50, lng:-0.11, type:'camera', viewers:'1.4k', status:'LIVE' },
-  { name:'Berlin Traffic Cam', country:'Niemcy', lat:52.51, lng:13.37, type:'camera', viewers:'920', status:'LIVE' },
-  { name:'Paris Metro Hub', country:'Francja', lat:48.86, lng:2.34, type:'camera', viewers:'1.1k', status:'LIVE' },
-  { name:'Warsaw Center Cam', country:'Polska', lat:52.22, lng:21.02, type:'camera', viewers:'860', status:'LIVE' },
-  { name:'Tokyo Crossing Feed', country:'Japonia', lat:35.66, lng:139.70, type:'camera', viewers:'3.2k', status:'LIVE' },
-  { name:'Seoul Skyline Cam', country:'Korea Płd.', lat:37.56, lng:126.97, type:'camera', viewers:'1.6k', status:'LIVE' },
-  { name:'Singapore Port Cam', country:'Singapur', lat:1.29, lng:103.85, type:'camera', viewers:'2.3k', status:'LIVE' },
-  { name:'Dubai Marina Feed', country:'ZEA', lat:25.08, lng:55.14, type:'camera', viewers:'1.7k', status:'LIVE' },
-  { name:'Sydney Harbour Cam', country:'Australia', lat:-33.86, lng:151.21, type:'camera', viewers:'1.3k', status:'LIVE' },
-  { name:'New York Street Cam', country:'USA', lat:40.72, lng:-74.00, type:'camera', viewers:'2.9k', status:'LIVE' },
-  { name:'Toronto Union Cam', country:'Kanada', lat:43.64, lng:-79.38, type:'camera', viewers:'760', status:'LIVE' },
-  { name:'Sao Paulo Avenue Cam', country:'Brazylia', lat:-23.56, lng:-46.65, type:'camera', viewers:'1.2k', status:'LIVE' },
-  { name:'Cape Town Bay Cam', country:'RPA', lat:-33.92, lng:18.41, type:'camera', viewers:'680', status:'LIVE' },
-  { name:'Nairobi Junction Cam', country:'Kenia', lat:-1.28, lng:36.82, type:'camera', viewers:'540', status:'LIVE' },
-  { name:'Mumbai Rail Cam', country:'Indie', lat:19.07, lng:72.88, type:'camera', viewers:'1.8k', status:'LIVE' },
-  { name:'Shanghai Tower Cam', country:'Chiny', lat:31.23, lng:121.49, type:'camera', viewers:'2.6k', status:'LIVE' },
-  { name:'Mexico City Plaza Cam', country:'Meksyk', lat:19.43, lng:-99.14, type:'camera', viewers:'970', status:'LIVE' },
-  { name:'Istanbul Bosphorus Cam', country:'Turcja', lat:41.04, lng:29.00, type:'camera', viewers:'1.5k', status:'LIVE' },
+  { name:'London CCTV Grid',      country:'Wielka Brytania', lat:51.50, lng:-0.11,   type:'camera', viewers:'1.4k' },
+  { name:'Berlin Traffic Cam',    country:'Niemcy',          lat:52.51, lng:13.37,   type:'camera', viewers:'920' },
+  { name:'Paris Metro Hub',       country:'Francja',         lat:48.86, lng:2.34,    type:'camera', viewers:'1.1k' },
+  { name:'Warsaw Center Cam',     country:'Polska',          lat:52.22, lng:21.02,   type:'camera', viewers:'860' },
+  { name:'Tokyo Crossing Feed',   country:'Japonia',         lat:35.66, lng:139.70,  type:'camera', viewers:'3.2k' },
+  { name:'Seoul Skyline Cam',     country:'Korea Płd.',      lat:37.56, lng:126.97,  type:'camera', viewers:'1.6k' },
+  { name:'Singapore Port Cam',    country:'Singapur',        lat:1.29,  lng:103.85,  type:'camera', viewers:'2.3k' },
+  { name:'Dubai Marina Feed',     country:'ZEA',             lat:25.08, lng:55.14,   type:'camera', viewers:'1.7k' },
+  { name:'Sydney Harbour Cam',    country:'Australia',       lat:-33.86,lng:151.21,  type:'camera', viewers:'1.3k' },
+  { name:'New York Street Cam',   country:'USA',             lat:40.72, lng:-74.00,  type:'camera', viewers:'2.9k' },
+  { name:'Toronto Union Cam',     country:'Kanada',          lat:43.64, lng:-79.38,  type:'camera', viewers:'760' },
+  { name:'Sao Paulo Avenue Cam',  country:'Brazylia',        lat:-23.56,lng:-46.65,  type:'camera', viewers:'1.2k' },
+  { name:'Cape Town Bay Cam',     country:'RPA',             lat:-33.92,lng:18.41,   type:'camera', viewers:'680' },
+  { name:'Mumbai Rail Cam',       country:'Indie',           lat:19.07, lng:72.88,   type:'camera', viewers:'1.8k' },
+  { name:'Shanghai Tower Cam',    country:'Chiny',           lat:31.23, lng:121.49,  type:'camera', viewers:'2.6k' },
+  { name:'Mexico City Plaza Cam', country:'Meksyk',          lat:19.43, lng:-99.14,  type:'camera', viewers:'970' },
+  { name:'Istanbul Bosphorus Cam',country:'Turcja',          lat:41.04, lng:29.00,   type:'camera', viewers:'1.5k' },
 ];
 
 const airports = [
-  { name:'JFK', country:'USA', lat:40.64, lng:-73.78, type:'airport' },
-  { name:'LAX', country:'USA', lat:33.94, lng:-118.40, type:'airport' },
-  { name:'O Hare', country:'USA', lat:41.98, lng:-87.90, type:'airport' },
-  { name:'Heathrow', country:'Wielka Brytania', lat:51.47, lng:-0.45, type:'airport' },
-  { name:'Charles de Gaulle', country:'Francja', lat:49.01, lng:2.55, type:'airport' },
-  { name:'Berlin Brandenburg', country:'Niemcy', lat:52.36, lng:13.50, type:'airport' },
-  { name:'Chopin', country:'Polska', lat:52.17, lng:20.97, type:'airport' },
-  { name:'Narita', country:'Japonia', lat:35.77, lng:140.39, type:'airport' },
-  { name:'Incheon', country:'Korea Płd.', lat:37.46, lng:126.44, type:'airport' },
-  { name:'Changi', country:'Singapur', lat:1.36, lng:103.99, type:'airport' },
-  { name:'Dubai Intl', country:'ZEA', lat:25.25, lng:55.36, type:'airport' },
-  { name:'Haneda', country:'Japonia', lat:35.55, lng:139.78, type:'airport' },
-  { name:'Sydney Kingsford', country:'Australia', lat:-33.94, lng:151.18, type:'airport' },
-  { name:'Istanbul Airport', country:'Turcja', lat:41.26, lng:28.74, type:'airport' },
-  { name:'Toronto Pearson', country:'Kanada', lat:43.68, lng:-79.63, type:'airport' },
-  { name:'Mexico City Intl', country:'Meksyk', lat:19.44, lng:-99.07, type:'airport' },
-  { name:'Sao Paulo Guarulhos', country:'Brazylia', lat:-23.43, lng:-46.47, type:'airport' },
-  { name:'Johannesburg OR Tambo', country:'RPA', lat:-26.13, lng:28.24, type:'airport' },
-  { name:'Delhi IGI', country:'Indie', lat:28.56, lng:77.10, type:'airport' },
-  { name:'Shanghai Pudong', country:'Chiny', lat:31.14, lng:121.81, type:'airport' },
+  { name:'JFK',                   country:'USA',             lat:40.64, lng:-73.78,  type:'airport' },
+  { name:'LAX',                   country:'USA',             lat:33.94, lng:-118.40, type:'airport' },
+  { name:'O\'Hare',               country:'USA',             lat:41.98, lng:-87.90,  type:'airport' },
+  { name:'Heathrow',              country:'Wielka Brytania', lat:51.47, lng:-0.45,   type:'airport' },
+  { name:'Charles de Gaulle',     country:'Francja',         lat:49.01, lng:2.55,    type:'airport' },
+  { name:'Berlin Brandenburg',    country:'Niemcy',          lat:52.36, lng:13.50,   type:'airport' },
+  { name:'Chopin',                country:'Polska',          lat:52.17, lng:20.97,   type:'airport' },
+  { name:'Narita',                country:'Japonia',         lat:35.77, lng:140.39,  type:'airport' },
+  { name:'Incheon',               country:'Korea Płd.',      lat:37.46, lng:126.44,  type:'airport' },
+  { name:'Changi',                country:'Singapur',        lat:1.36,  lng:103.99,  type:'airport' },
+  { name:'Dubai Intl',            country:'ZEA',             lat:25.25, lng:55.36,   type:'airport' },
+  { name:'Sydney Kingsford',      country:'Australia',       lat:-33.94,lng:151.18,  type:'airport' },
+  { name:'Istanbul Airport',      country:'Turcja',          lat:41.26, lng:28.74,   type:'airport' },
+  { name:'Toronto Pearson',       country:'Kanada',          lat:43.68, lng:-79.63,  type:'airport' },
+  { name:'Delhi IGI',             country:'Indie',           lat:28.56, lng:77.10,   type:'airport' },
+  { name:'Shanghai Pudong',       country:'Chiny',           lat:31.14, lng:121.81,  type:'airport' },
 ];
 
-const layerState = {
-  camera: true,
-  capital: true,
-  city: true,
-  airport: true,
+// ── NEW LAYERS ──
+const militaryBases = [
+  { name:'Ramstein Air Base',     country:'Niemcy',          lat:49.44, lng:7.60,    type:'military', branch:'Air Force' },
+  { name:'RAF Mildenhall',        country:'Wielka Brytania', lat:52.36, lng:0.49,    type:'military', branch:'Air Force' },
+  { name:'Camp Lejeune',          country:'USA',             lat:34.59, lng:-77.36,  type:'military', branch:'Marines' },
+  { name:'Pentagon Area',         country:'USA',             lat:38.87, lng:-77.06,  type:'military', branch:'HQ' },
+  { name:'Camp Humphreys',        country:'Korea Płd.',      lat:36.97, lng:127.03,  type:'military', branch:'Army' },
+  { name:'Yokota Air Base',       country:'Japonia',         lat:35.75, lng:139.35,  type:'military', branch:'Air Force' },
+  { name:'Al Udeid Air Base',     country:'Katar',           lat:25.12, lng:51.31,   type:'military', branch:'Air Force' },
+  { name:'Diego Garcia',          country:'BIOT',            lat:-7.31, lng:72.41,   type:'military', branch:'Navy' },
+  { name:'Guantanamo Bay',        country:'Kuba',            lat:19.91, lng:-75.09,  type:'military', branch:'Navy' },
+  { name:'Bagram Air Base',       country:'Afganistan',      lat:34.94, lng:69.27,   type:'military', branch:'Air Force' },
+  { name:'Lask Air Base',         country:'Polska',          lat:51.55, lng:19.18,   type:'military', branch:'Air Force' },
+  { name:'Sigonella NAS',         country:'Włochy',          lat:37.40, lng:14.92,   type:'military', branch:'Navy' },
+  { name:'Sevastopol Base',       country:'Rosja',           lat:44.62, lng:33.52,   type:'military', branch:'Navy' },
+  { name:'Hmeimim Air Base',      country:'Syria',           lat:35.40, lng:35.95,   type:'military', branch:'Air Force' },
+  { name:'Pearl Harbor',          country:'USA',             lat:21.36, lng:-157.97, type:'military', branch:'Navy' },
+];
+
+const navalFleets = [
+  { name:'USS Gerald Ford (CVN-78)',  country:'USA',             lat:36.95, lng:-76.33,  type:'naval', class:'Carrier' },
+  { name:'USS Theodore Roosevelt',    country:'USA',             lat:32.71, lng:-117.22, type:'naval', class:'Carrier' },
+  { name:'USS Nimitz',                country:'USA',             lat:13.50, lng:144.80,  type:'naval', class:'Carrier' },
+  { name:'HMS Queen Elizabeth',       country:'Wielka Brytania', lat:50.80, lng:-1.10,   type:'naval', class:'Carrier' },
+  { name:'FS Charles de Gaulle',      country:'Francja',         lat:43.12, lng:5.93,    type:'naval', class:'Carrier' },
+  { name:'Admiral Kuznetsov',         country:'Rosja',           lat:69.01, lng:33.05,   type:'naval', class:'Carrier' },
+  { name:'Liaoning (CV-16)',          country:'Chiny',           lat:39.09, lng:121.72,  type:'naval', class:'Carrier' },
+  { name:'INS Vikrant',               country:'Indie',           lat:15.30, lng:73.80,   type:'naval', class:'Carrier' },
+  { name:'JDS Izumo (DDH-183)',       country:'Japonia',         lat:35.44, lng:139.65,  type:'naval', class:'Destroyer' },
+  { name:'ROKS Sejong Daewang',       country:'Korea Płd.',      lat:37.45, lng:126.45,  type:'naval', class:'Destroyer' },
+  { name:'TCG Heybeliada',            country:'Turcja',          lat:40.98, lng:29.02,   type:'naval', class:'Corvette' },
+  { name:'ORP Kościuszko',            country:'Polska',          lat:54.52, lng:18.55,   type:'naval', class:'Frigate' },
+  { name:'HNLMS De Zeven Provinciën', country:'Holandia',        lat:51.90, lng:4.47,    type:'naval', class:'Frigate' },
+  { name:'FGS Bayern',                country:'Niemcy',          lat:54.32, lng:10.15,   type:'naval', class:'Frigate' },
+];
+
+const nuclearPlants = [
+  { name:'Zaporizhzhia',   country:'Ukraina',         lat:47.51, lng:34.58,  type:'nuclear', mw:5700,  status:'offline' },
+  { name:'Bruce Nuclear',  country:'Kanada',          lat:44.33, lng:-81.60, type:'nuclear', mw:6384,  status:'active' },
+  { name:'Paluel',         country:'Francja',         lat:49.86, lng:0.63,   type:'nuclear', mw:5320,  status:'active' },
+  { name:'Gravelines',     country:'Francja',         lat:50.99, lng:2.13,   type:'nuclear', mw:5460,  status:'active' },
+  { name:'Cattenom',       country:'Francja',         lat:49.40, lng:6.22,   type:'nuclear', mw:5200,  status:'active' },
+  { name:'Kozloduy',       country:'Bułgaria',        lat:43.79, lng:23.78,  type:'nuclear', mw:1906,  status:'active' },
+  { name:'Leibstadt',      country:'Szwajcaria',      lat:47.60, lng:8.18,   type:'nuclear', mw:1220,  status:'active' },
+  { name:'Isar',           country:'Niemcy',          lat:48.61, lng:12.29,  type:'nuclear', mw:1475,  status:'offline' },
+  { name:'Paks',           country:'Węgry',           lat:46.57, lng:18.86,  type:'nuclear', mw:1902,  status:'active' },
+  { name:'Rovno',          country:'Ukraina',         lat:51.34, lng:25.89,  type:'nuclear', mw:2835,  status:'active' },
+  { name:'Khmelnytskyi',   country:'Ukraina',         lat:50.30, lng:26.65,  type:'nuclear', mw:1900,  status:'active' },
+  { name:'Sosnoviy Bor',   country:'Rosja',           lat:59.88, lng:29.06,  type:'nuclear', mw:4000,  status:'active' },
+  { name:'Leningrad II',   country:'Rosja',           lat:59.84, lng:29.07,  type:'nuclear', mw:4800,  status:'active' },
+  { name:'Bushehr',        country:'Iran',            lat:28.83, lng:50.89,  type:'nuclear', mw:1000,  status:'active' },
+  { name:'Qinshan',        country:'Chiny',           lat:30.44, lng:120.96, type:'nuclear', mw:6620,  status:'active' },
+  { name:'Hongyanhe',      country:'Chiny',           lat:39.79, lng:121.47, type:'nuclear', mw:4468,  status:'active' },
+  { name:'Kashiwazaki-Kariwa',country:'Japonia',      lat:37.43, lng:138.60, type:'nuclear', mw:8212,  status:'offline' },
+  { name:'Kori',           country:'Korea Płd.',      lat:35.33, lng:129.28, type:'nuclear', mw:3137,  status:'active' },
+  { name:'Tarapur',        country:'Indie',           lat:19.83, lng:72.72,  type:'nuclear', mw:1400,  status:'active' },
+  { name:'Watts Bar',      country:'USA',             lat:35.60, lng:-84.79, type:'nuclear', mw:2365,  status:'active' },
+  { name:'Palo Verde',     country:'USA',             lat:33.39, lng:-112.86,type:'nuclear', mw:3937,  status:'active' },
+  { name:'Sizewell B',     country:'Wielka Brytania', lat:52.21, lng:1.62,   type:'nuclear', mw:1188,  status:'active' },
+  { name:'Trillo',         country:'Hiszpania',       lat:40.68, lng:-2.58,  type:'nuclear', mw:1066,  status:'active' },
+  { name:'Cernavoda',      country:'Rumunia',         lat:44.32, lng:28.06,  type:'nuclear', mw:1413,  status:'active' },
+];
+
+// Satellites — static orbital positions (animated via arc rings)
+const satellites = [
+  { name:'ISS',               country:'USA',    lat:51.60,  lng:0.00,    type:'satellite', orbit:'LEO', alt:408 },
+  { name:'GPS Block III-1',   country:'USA',    lat:55.00,  lng:-120.00, type:'satellite', orbit:'MEO', alt:20200 },
+  { name:'GPS Block III-2',   country:'USA',    lat:55.00,  lng:-60.00,  type:'satellite', orbit:'MEO', alt:20200 },
+  { name:'GPS Block III-3',   country:'USA',    lat:55.00,  lng:60.00,   type:'satellite', orbit:'MEO', alt:20200 },
+  { name:'GPS Block III-4',   country:'USA',    lat:55.00,  lng:140.00,  type:'satellite', orbit:'MEO', alt:20200 },
+  { name:'Starlink L1',       country:'USA',    lat:53.00,  lng:-90.00,  type:'satellite', orbit:'LEO', alt:550 },
+  { name:'Starlink L2',       country:'USA',    lat:53.00,  lng:30.00,   type:'satellite', orbit:'LEO', alt:550 },
+  { name:'Starlink L3',       country:'USA',    lat:53.00,  lng:150.00,  type:'satellite', orbit:'LEO', alt:550 },
+  { name:'Sentinel-6',        country:'ESA',    lat:66.00,  lng:50.00,   type:'satellite', orbit:'LEO', alt:1336 },
+  { name:'Galileo-27',        country:'ESA',    lat:56.00,  lng:20.00,   type:'satellite', orbit:'MEO', alt:23222 },
+  { name:'Galileo-28',        country:'ESA',    lat:56.00,  lng:100.00,  type:'satellite', orbit:'MEO', alt:23222 },
+  { name:'BeiDou-3 M1',       country:'Chiny',  lat:55.00,  lng:80.00,   type:'satellite', orbit:'MEO', alt:21528 },
+  { name:'BeiDou-3 M2',       country:'Chiny',  lat:55.00,  lng:160.00,  type:'satellite', orbit:'MEO', alt:21528 },
+  { name:'BeiDou-3 M3',       country:'Chiny',  lat:55.00,  lng:-160.00, type:'satellite', orbit:'MEO', alt:21528 },
+  { name:'GLONASS-K1',        country:'Rosja',  lat:64.80,  lng:-30.00,  type:'satellite', orbit:'MEO', alt:19130 },
+  { name:'GLONASS-K2',        country:'Rosja',  lat:64.80,  lng:90.00,   type:'satellite', orbit:'MEO', alt:19130 },
+  { name:'GLONASS-K3',        country:'Rosja',  lat:64.80,  lng:-150.00, type:'satellite', orbit:'MEO', alt:19130 },
+  { name:'Intelsat 39',       country:'USA',    lat:0.00,   lng:-62.00,  type:'satellite', orbit:'GEO', alt:35786 },
+  { name:'Türksat 5B',        country:'Turcja', lat:0.00,   lng:42.00,   type:'satellite', orbit:'GEO', alt:35786 },
+  { name:'Yamal-402',         country:'Rosja',  lat:0.00,   lng:55.00,   type:'satellite', orbit:'GEO', alt:35786 },
+];
+
+// ══════════════════════════════════════════════
+//  CONFIG & STATE
+// ══════════════════════════════════════════════
+const layerConfig = {
+  camera:    { label:'Camera',    emoji:'📹', color:'#ff7a59', pointRadius:0.34, pointAltitude:0.018, labelAltitude:0.055, data:liveCameras },
+  capital:   { label:'Capital',   emoji:'🏛️', color:'#00ff88', pointRadius:0.45, pointAltitude:0.015, labelAltitude:0.050, data:capitals },
+  city:      { label:'City',      emoji:'🏙️', color:'#ff5f5f', pointRadius:0.30, pointAltitude:0.010, labelAltitude:0.042, data:bigCities },
+  airport:   { label:'Airport',   emoji:'🛫', color:'#4cd6ff', pointRadius:0.28, pointAltitude:0.012, labelAltitude:0.048, data:airports },
+  satellite: { label:'Satellite', emoji:'🛰️', color:'#a0d8ff', pointRadius:0.22, pointAltitude:0.040, labelAltitude:0.060, data:satellites },
+  military:  { label:'Military',  emoji:'⚓',  color:'#c880ff', pointRadius:0.32, pointAltitude:0.016, labelAltitude:0.052, data:militaryBases },
+  naval:     { label:'Naval',     emoji:'🌊', color:'#6080ff', pointRadius:0.30, pointAltitude:0.014, labelAltitude:0.050, data:navalFleets },
+  nuclear:   { label:'Nuclear',   emoji:'☢️', color:'#ffd050', pointRadius:0.28, pointAltitude:0.015, labelAltitude:0.048, data:nuclearPlants },
 };
 
+const layerState = { camera:true, capital:true, city:true, airport:true, satellite:true, military:true, naval:true, nuclear:true };
+const allDataPoints = [...capitals, ...bigCities, ...liveCameras, ...airports, ...militaryBases, ...navalFleets, ...nuclearPlants, ...satellites];
+
+// Country panel elements
+const cpPanel       = document.getElementById('country-panel');
+const cpClose       = document.getElementById('cp-close');
+const cpFlag        = document.getElementById('cp-flag');
+const cpName        = document.getElementById('cp-name');
+const cpSubtitle    = document.getElementById('cp-subtitle');
+const cpDetails     = document.getElementById('cp-details');
+const cpStatEls = {
+  capitals:   document.getElementById('cp-s-capitals'),
+  cities:     document.getElementById('cp-s-cities'),
+  cameras:    document.getElementById('cp-s-cams'),
+  airports:   document.getElementById('cp-s-airports'),
+  military:   document.getElementById('cp-s-military'),
+  naval:      document.getElementById('cp-s-naval'),
+  nuclear:    document.getElementById('cp-s-nuclear'),
+  satellites: document.getElementById('cp-s-satellites'),
+};
 const selectedCountryNameElement = document.getElementById('selected-country-name');
 const sendFlightButton = document.getElementById('send-flight-btn');
 const airportSendStatusElement = document.getElementById('airport-send-status');
-const countryStatsElements = {
-  capitals: document.getElementById('s-capitals'),
-  cities: document.getElementById('s-cities'),
-  cameras: document.getElementById('s-cams'),
-  airports: document.getElementById('s-airports'),
+const countryStatsBar = {
+  capitals:   document.getElementById('s-capitals'),
+  cities:     document.getElementById('s-cities'),
+  cameras:    document.getElementById('s-cams'),
+  airports:   document.getElementById('s-airports'),
+  military:   document.getElementById('s-military'),
+  naval:      document.getElementById('s-naval'),
+  nuclear:    document.getElementById('s-nuclear'),
+  satellites: document.getElementById('s-satellites'),
 };
 
-const countryAliasEntries = [
-  ['poland', 'Polska'],
-  ['germany', 'Niemcy'],
-  ['france', 'Francja'],
-  ['united kingdom', 'Wielka Brytania'],
-  ['uk', 'Wielka Brytania'],
-  ['spain', 'Hiszpania'],
-  ['italy', 'Włochy'],
-  ['russia', 'Rosja'],
-  ['russian federation', 'Rosja'],
-  ['ukraine', 'Ukraina'],
-  ['sweden', 'Szwecja'],
-  ['norway', 'Norwegia'],
-  ['finland', 'Finlandia'],
-  ['denmark', 'Dania'],
-  ['netherlands', 'Holandia'],
-  ['belgium', 'Belgia'],
-  ['austria', 'Austria'],
-  ['czechia', 'Czechy'],
-  ['czech republic', 'Czechy'],
-  ['hungary', 'Węgry'],
-  ['romania', 'Rumunia'],
-  ['greece', 'Grecja'],
-  ['portugal', 'Portugalia'],
-  ['united states of america', 'USA'],
-  ['united states', 'USA'],
-  ['usa', 'USA'],
-  ['canada', 'Kanada'],
-  ['mexico', 'Meksyk'],
-  ['brazil', 'Brazylia'],
-  ['argentina', 'Argentyna'],
-  ['colombia', 'Kolumbia'],
-  ['peru', 'Peru'],
-  ['chile', 'Chile'],
-  ['egypt', 'Egipt'],
-  ['kenya', 'Kenia'],
-  ['nigeria', 'Nigeria'],
-  ['south africa', 'RPA'],
-  ['rpa', 'RPA'],
-  ['ethiopia', 'Etiopia'],
-  ['ghana', 'Ghana'],
-  ['china', 'Chiny'],
-  ['japan', 'Japonia'],
-  ['south korea', 'Korea Płd.'],
-  ['republic of korea', 'Korea Płd.'],
-  ['korea republic of', 'Korea Płd.'],
-  ['korea pld', 'Korea Płd.'],
-  ['india', 'Indie'],
-  ['pakistan', 'Pakistan'],
-  ['iran', 'Iran'],
-  ['iraq', 'Irak'],
-  ['saudi arabia', 'Arabia Saudyjska'],
-  ['turkey', 'Turcja'],
-  ['israel', 'Izrael'],
-  ['thailand', 'Tajlandia'],
-  ['indonesia', 'Indonezja'],
-  ['malaysia', 'Malezja'],
-  ['philippines', 'Filipiny'],
-  ['vietnam', 'Wietnam'],
-  ['singapore', 'Singapur'],
-  ['australia', 'Australia'],
-  ['new zealand', 'Nowa Zelandia'],
-  ['bangladesh', 'Bangladesz'],
-  ['morocco', 'Maroko'],
-  ['united arab emirates', 'ZEA'],
-  ['zea', 'ZEA'],
-  ['democratic republic of the congo', 'DRK'],
-  ['drk', 'DRK'],
-  ['polska', 'Polska'],
-  ['niemcy', 'Niemcy'],
-  ['francja', 'Francja'],
-  ['wielka brytania', 'Wielka Brytania'],
-  ['hiszpania', 'Hiszpania'],
-  ['wlochy', 'Włochy'],
-  ['rosja', 'Rosja'],
-  ['ukraina', 'Ukraina'],
-  ['szwecja', 'Szwecja'],
-  ['norwegia', 'Norwegia'],
-  ['finlandia', 'Finlandia'],
-  ['dania', 'Dania'],
-  ['holandia', 'Holandia'],
-  ['belgia', 'Belgia'],
-  ['austria', 'Austria'],
-  ['czechy', 'Czechy'],
-  ['wegry', 'Węgry'],
-  ['rumunia', 'Rumunia'],
-  ['grecja', 'Grecja'],
-  ['portugalia', 'Portugalia'],
-  ['kanada', 'Kanada'],
-  ['meksyk', 'Meksyk'],
-  ['brazylia', 'Brazylia'],
-  ['argentyna', 'Argentyna'],
-  ['kolumbia', 'Kolumbia'],
-  ['egipt', 'Egipt'],
-  ['kenia', 'Kenia'],
-  ['chiny', 'Chiny'],
-  ['japonia', 'Japonia'],
-  ['indie', 'Indie'],
-  ['arabia saudyjska', 'Arabia Saudyjska'],
-  ['malezja', 'Malezja'],
-  ['filipiny', 'Filipiny'],
-  ['wietnam', 'Wietnam'],
-  ['singapur', 'Singapur'],
-  ['nowa zelandia', 'Nowa Zelandia'],
-  ['bangladesz', 'Bangladesz'],
-  ['maroko', 'Maroko'],
-];
+// Country flag map (ISO alpha-2 → emoji flag)
+const flagMap = {
+  'Polska':'🇵🇱','USA':'🇺🇸','Niemcy':'🇩🇪','Francja':'🇫🇷','Wielka Brytania':'🇬🇧',
+  'Hiszpania':'🇪🇸','Włochy':'🇮🇹','Rosja':'🇷🇺','Ukraina':'🇺🇦','Szwecja':'🇸🇪',
+  'Norwegia':'🇳🇴','Finlandia':'🇫🇮','Dania':'🇩🇰','Holandia':'🇳🇱','Belgia':'🇧🇪',
+  'Austria':'🇦🇹','Czechy':'🇨🇿','Węgry':'🇭🇺','Rumunia':'🇷🇴','Grecja':'🇬🇷',
+  'Portugalia':'🇵🇹','Kanada':'🇨🇦','Meksyk':'🇲🇽','Brazylia':'🇧🇷','Argentyna':'🇦🇷',
+  'Kolumbia':'🇨🇴','Peru':'🇵🇪','Chile':'🇨🇱','Egipt':'🇪🇬','Kenia':'🇰🇪',
+  'Nigeria':'🇳🇬','RPA':'🇿🇦','Etiopia':'🇪🇹','Ghana':'🇬🇭','Chiny':'🇨🇳',
+  'Japonia':'🇯🇵','Korea Płd.':'🇰🇷','Indie':'🇮🇳','Pakistan':'🇵🇰','Iran':'🇮🇷',
+  'Irak':'🇮🇶','Arabia Saudyjska':'🇸🇦','Turcja':'🇹🇷','Izrael':'🇮🇱','Tajlandia':'🇹🇭',
+  'Indonezja':'🇮🇩','Malezja':'🇲🇾','Filipiny':'🇵🇭','Wietnam':'🇻🇳','Singapur':'🇸🇬',
+  'Australia':'🇦🇺','Nowa Zelandia':'🇳🇿','Bangladesz':'🇧🇩','Maroko':'🇲🇦',
+  'ZEA':'🇦🇪','DRK':'🇨🇩','ESA':'🇪🇺','Bułgaria':'🇧🇬','Szwajcaria':'🇨🇭',
+};
 
-const countryAliases = new Map(countryAliasEntries);
-const allDataPoints = [...capitals, ...bigCities, ...liveCameras, ...airports];
+const countryAliases = new Map([
+  ['poland','Polska'],['germany','Niemcy'],['france','Francja'],['united kingdom','Wielka Brytania'],
+  ['uk','Wielka Brytania'],['spain','Hiszpania'],['italy','Włochy'],['russia','Rosja'],
+  ['russian federation','Rosja'],['ukraine','Ukraina'],['sweden','Szwecja'],['norway','Norwegia'],
+  ['finland','Finlandia'],['denmark','Dania'],['netherlands','Holandia'],['belgium','Belgia'],
+  ['austria','Austria'],['czechia','Czechy'],['czech republic','Czechy'],['hungary','Węgry'],
+  ['romania','Rumunia'],['greece','Grecja'],['portugal','Portugalia'],
+  ['united states of america','USA'],['united states','USA'],['usa','USA'],
+  ['canada','Kanada'],['mexico','Meksyk'],['brazil','Brazylia'],['argentina','Argentyna'],
+  ['colombia','Kolumbia'],['peru','Peru'],['chile','Chile'],['egypt','Egipt'],
+  ['kenya','Kenia'],['nigeria','Nigeria'],['south africa','RPA'],['ethiopia','Etiopia'],
+  ['ghana','Ghana'],['china','Chiny'],['japan','Japonia'],['south korea','Korea Płd.'],
+  ['republic of korea','Korea Płd.'],['korea republic of','Korea Płd.'],
+  ['india','Indie'],['pakistan','Pakistan'],['iran','Iran'],['iraq','Irak'],
+  ['saudi arabia','Arabia Saudyjska'],['turkey','Turcja'],['israel','Izrael'],
+  ['thailand','Tajlandia'],['indonesia','Indonezja'],['malaysia','Malezja'],
+  ['philippines','Filipiny'],['vietnam','Wietnam'],['singapore','Singapur'],
+  ['australia','Australia'],['new zealand','Nowa Zelandia'],['bangladesh','Bangladesz'],
+  ['morocco','Maroko'],['united arab emirates','ZEA'],['democratic republic of the congo','DRK'],
+  ['bulgaria','Bułgaria'],['switzerland','Szwajcaria'],
+  // Polish aliases
+  ['polska','Polska'],['niemcy','Niemcy'],['francja','Francja'],['wielka brytania','Wielka Brytania'],
+  ['hiszpania','Hiszpania'],['wlochy','Włochy'],['rosja','Rosja'],['ukraina','Ukraina'],
+  ['szwecja','Szwecja'],['norwegia','Norwegia'],['finlandia','Finlandia'],['dania','Dania'],
+  ['holandia','Holandia'],['belgia','Belgia'],['czechy','Czechy'],['wegry','Węgry'],
+  ['rumunia','Rumunia'],['grecja','Grecja'],['portugalia','Portugalia'],['kanada','Kanada'],
+  ['meksyk','Meksyk'],['brazylia','Brazylia'],['argentyna','Argentyna'],['egipt','Egipt'],
+  ['kenia','Kenia'],['chiny','Chiny'],['japonia','Japonia'],['indie','Indie'],
+  ['singapur','Singapur'],['australi','Australia'],
+]);
+
 let countryFeatures = [];
-let selectedCountryKey = normalizeCountryKey('USA');
-let selectedCountryLabel = 'USA';
+let selectedCountryKey = '';
+let selectedCountryLabel = '';
 let sendModeActive = false;
 const activeFlights = [];
 const activeLandings = [];
-const flightOrigin = { lat: 39.50, lng: -98.35 };
+const flightOrigin = { lat:39.50, lng:-98.35 };
 
-const layerConfig = {
-  camera: {
-    label: 'Camera',
-    emoji: '📹',
-    color: '#ff7a59',
-    pointRadius: 0.34,
-    pointAltitude: 0.018,
-    labelAltitude: 0.055,
-    labelSize: 0.95,
-    data: liveCameras,
-  },
-  capital: {
-    label: 'Capital',
-    emoji: '🏛️',
-    color: '#00ff88',
-    pointRadius: 0.45,
-    pointAltitude: 0.015,
-    labelAltitude: 0.05,
-    labelSize: 0.98,
-    data: capitals,
-  },
-  city: {
-    label: 'City',
-    emoji: '🏙️',
-    color: '#ff5f5f',
-    pointRadius: 0.3,
-    pointAltitude: 0.01,
-    labelAltitude: 0.042,
-    labelSize: 0.9,
-    data: bigCities,
-  },
-  airport: {
-    label: 'Airport',
-    emoji: '🛫',
-    color: '#4cd6ff',
-    pointRadius: 0.28,
-    pointAltitude: 0.012,
-    labelAltitude: 0.048,
-    labelSize: 0.88,
-    data: airports,
-  },
-};
+// Satellite orbit arcs (rendered as thin rings)
+const satOrbitArcs = satellites.map((s, i) => ({
+  id: `orbit-${i}`,
+  startLat: s.lat,
+  startLng: s.lng - 60,
+  endLat: s.lat,
+  endLng: s.lng + 60,
+  altitude: Math.min(0.25, 0.04 + (s.alt / 40000) * 0.22),
+  duration: 3200 + i * 180,
+  color: ['rgba(160,216,255,0.55)', 'rgba(100,180,255,0.15)'],
+  isSatOrbit: true,
+}));
 
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function toRadians(v) { return v * Math.PI / 180; }
+
+function normalizeCountryKey(v) {
+  return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,' ').trim().toLowerCase();
+}
+
+function canonicalCountryName(v) {
+  const k = normalizeCountryKey(v);
+  return countryAliases.get(k) || v || 'Nieznany kraj';
+}
+
+function getFeatureCountryKey(f) {
+  return normalizeCountryKey(canonicalCountryName(f?.properties?.ADMIN || f?.properties?.name || ''));
+}
+
+function isSelectedFeature(f) {
+  return Boolean(selectedCountryKey) && getFeatureCountryKey(f) === selectedCountryKey;
+}
+
+function getAngularDistance(la, lna, lb, lnb) {
+  const a1 = toRadians(la), a2 = toRadians(lb), dl = toRadians(lna - lnb);
+  return Math.acos(Math.min(1, Math.max(-1, Math.sin(a1)*Math.sin(a2) + Math.cos(a1)*Math.cos(a2)*Math.cos(dl))));
+}
+
+function getVisiblePoints() {
+  return Object.entries(layerConfig).filter(([k]) => layerState[k]).flatMap(([,c]) => c.data);
+}
+
+function getCountryPoints(label) {
+  const key = normalizeCountryKey(label);
+  return allDataPoints.filter(p => normalizeCountryKey(canonicalCountryName(p.country)) === key);
+}
+
+function flattenCoords(coords, out) {
+  if (!Array.isArray(coords) || !coords.length) return;
+  if (typeof coords[0] === 'number') { out.push({ lng:coords[0], lat:coords[1] }); return; }
+  coords.forEach(c => flattenCoords(c, out));
+}
+
+function getFeatureCenter(feature) {
+  const pts = [];
+  flattenCoords(feature?.geometry?.coordinates, pts);
+  if (!pts.length) return null;
+  const s = pts.reduce((a,p) => { a.lat+=p.lat; a.lng+=p.lng; return a; }, {lat:0,lng:0});
+  return { lat: s.lat/pts.length, lng: s.lng/pts.length };
+}
+
+function pointLabel(d) {
+  const cfg = layerConfig[d.type];
+  let extra = '';
+  if (d.pop) extra = ` · ${d.pop}`;
+  else if (d.viewers) extra = ` · ${d.viewers} widzów`;
+  else if (d.branch) extra = ` · ${d.branch}`;
+  else if (d.class) extra = ` · ${d.class}`;
+  else if (d.mw) extra = ` · ${d.mw} MW`;
+  else if (d.orbit) extra = ` · ${d.orbit} ${d.alt}km`;
+  return `<div style="background:rgba(5,10,30,0.92);border:1px solid ${cfg.color};padding:6px 12px;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;color:#c8d8f0;">
+    <b style="color:${cfg.color}">${cfg.emoji} ${d.name}</b><br>
+    <span style="color:rgba(150,180,220,0.7);font-size:9px">${d.country}${extra}</span></div>`;
+}
+
+// ══════════════════════════════════════════════
+//  GLOBE INIT
+// ══════════════════════════════════════════════
 const globe = Globe()(document.getElementById('globe-container'))
   .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
   .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
@@ -569,260 +678,187 @@ const globe = Globe()(document.getElementById('globe-container'))
   .atmosphereColor('#3a8aff')
   .atmosphereAltitude(0.18)
   .polygonsData([])
-  .polygonCapColor(feature => isSelectedFeature(feature) ? 'rgba(61, 164, 255, 0.42)' : 'rgba(30,60,120,0.3)')
-  .polygonSideColor(feature => isSelectedFeature(feature) ? 'rgba(38, 111, 222, 0.28)' : 'rgba(20,40,100,0.15)')
-  .polygonStrokeColor(feature => isSelectedFeature(feature) ? 'rgba(160,228,255,0.95)' : 'rgba(80,160,255,0.45)')
-  .polygonAltitude(feature => isSelectedFeature(feature) ? 0.025 : 0.008)
-  .polygonLabel(({ properties: d }) => `
-    <div style="background:rgba(5,10,30,0.92);border:1px solid rgba(80,160,255,0.4);padding:6px 12px;border-radius:6px;font-family:'Courier New',monospace;font-size:12px;color:#c8d8f0;">
-      <b style="color:#5bf">${canonicalCountryName(d.ADMIN || d.name || '')}</b>
-    </div>
-  `)
-  .onPolygonClick(feature => selectCountry(feature))
+  .polygonCapColor(f => isSelectedFeature(f) ? 'rgba(61,164,255,0.42)' : 'rgba(30,60,120,0.3)')
+  .polygonSideColor(f => isSelectedFeature(f) ? 'rgba(38,111,222,0.28)' : 'rgba(20,40,100,0.15)')
+  .polygonStrokeColor(f => isSelectedFeature(f) ? 'rgba(160,228,255,0.95)' : 'rgba(80,160,255,0.45)')
+  .polygonAltitude(f => isSelectedFeature(f) ? 0.025 : 0.008)
+  .polygonLabel(({properties:d}) => `<div style="background:rgba(5,10,30,0.92);border:1px solid rgba(80,160,255,0.4);padding:6px 12px;border-radius:6px;font-family:'Courier New',monospace;font-size:12px;color:#c8d8f0;"><b style="color:#5bf">${canonicalCountryName(d.ADMIN||d.name||'')}</b></div>`)
+  .onPolygonClick(f => selectCountry(f))
   .pointsData([])
-  .pointLat('lat')
-  .pointLng('lng')
+  .pointLat('lat').pointLng('lng')
   .pointAltitude(d => layerConfig[d.type].pointAltitude)
   .pointRadius(d => layerConfig[d.type].pointRadius)
   .pointColor(d => layerConfig[d.type].color)
   .pointResolution(12)
+  .pointLabel(pointLabel)
   .htmlElementsData([])
-  .htmlLat('lat')
-  .htmlLng('lng')
+  .htmlLat('lat').htmlLng('lng')
   .htmlAltitude(d => layerConfig[d.type].pointAltitude + layerConfig[d.type].labelAltitude)
   .htmlElement(d => {
-    const emoji = document.createElement('div');
-    emoji.className = 'globe-emoji';
-    emoji.textContent = layerConfig[d.type].emoji;
-    d._emojiElement = emoji;
-    return emoji;
+    const el = document.createElement('div');
+    el.className = 'globe-emoji';
+    el.textContent = layerConfig[d.type].emoji;
+    d._emojiElement = el;
+    return el;
   })
   .arcsData([])
-  .arcStartLat('startLat')
-  .arcStartLng('startLng')
-  .arcEndLat('endLat')
-  .arcEndLng('endLng')
-  .arcColor(d => d.color)
-  .arcAltitude(d => d.altitude)
-  .arcStroke(0.85)
-  .arcDashLength(0.52)
-  .arcDashGap(1.4)
+  .arcStartLat('startLat').arcStartLng('startLng')
+  .arcEndLat('endLat').arcEndLng('endLng')
+  .arcColor('color')
+  .arcAltitude('altitude')
+  .arcStroke(d => d.isSatOrbit ? 0.4 : 0.85)
+  .arcDashLength(d => d.isSatOrbit ? 0.18 : 0.52)
+  .arcDashGap(d => d.isSatOrbit ? 0.82 : 1.4)
   .arcDashInitialGap(() => Math.random())
   .arcDashAnimateTime(d => d.duration)
   .ringsData([])
-  .ringLat('lat')
-  .ringLng('lng')
+  .ringLat('lat').ringLng('lng')
   .ringColor(d => d.color)
   .ringMaxRadius(d => d.maxRadius)
   .ringPropagationSpeed(d => d.speed)
-  .ringRepeatPeriod(600)
-  .pointLabel(d => `
-    <div style="background:rgba(5,10,30,0.92);border:1px solid ${layerConfig[d.type].color};padding:6px 12px;border-radius:6px;font-family:'Courier New',monospace;font-size:11px;color:#c8d8f0;">
-      <b style="color:${layerConfig[d.type].color}">${layerConfig[d.type].emoji} ${d.name}</b><br>
-      <span style="color:rgba(150,180,220,0.7);font-size:9px">${d.country}${d.pop ? ' · ' + d.pop : d.viewers ? ' · ' + d.viewers + ' widzów' : ' · stolica'}</span>
-    </div>
-  `);
+  .ringRepeatPeriod(600);
 
-const layerButtons = Array.from(document.querySelectorAll('.layer-tile'));
+globe.controls().autoRotate = true;
+globe.controls().autoRotateSpeed = 0.4;
+globe.controls().enableDamping = true;
+globe.pointOfView({ lat:20, lng:15, altitude:2.0 });
 
-function toRadians(value) {
-  return value * Math.PI / 180;
-}
+function resize() { globe.width(window.innerWidth).height(window.innerHeight); }
+window.addEventListener('resize', resize);
+resize();
 
-function normalizeCountryKey(value) {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9]+/g, ' ')
-    .trim()
-    .toLowerCase();
-}
-
-function canonicalCountryName(value) {
-  const normalized = normalizeCountryKey(value);
-  return countryAliases.get(normalized) || value || 'Nieznany kraj';
-}
-
-function getFeatureCountryKey(feature) {
-  return normalizeCountryKey(canonicalCountryName(feature?.properties?.ADMIN || feature?.properties?.name || ''));
-}
-
-function isSelectedFeature(feature) {
-  return Boolean(selectedCountryKey) && getFeatureCountryKey(feature) === selectedCountryKey;
-}
-
-function getAngularDistance(latA, lngA, latB, lngB) {
-  const lat1 = toRadians(latA);
-  const lat2 = toRadians(latB);
-  const deltaLng = toRadians(lngA - lngB);
-  const cosine = Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(deltaLng);
-
-  return Math.acos(Math.min(1, Math.max(-1, cosine)));
-}
-
+// ══════════════════════════════════════════════
+//  EMOJI SCALE LOOP
+// ══════════════════════════════════════════════
 function updateEmojiScale() {
   const pov = globe.pointOfView();
-  const altitudeFactor = Math.max(0.82, Math.min(1.15, 1.16 - (((pov.altitude ?? 2) - 2) * 0.08)));
+  const altF = Math.max(0.82, Math.min(1.15, 1.16 - ((pov.altitude ?? 2) - 2) * 0.08));
+  getVisiblePoints().forEach(p => {
+    if (!p._emojiElement) return;
+    const angle = getAngularDistance(p.lat, p.lng, pov.lat, pov.lng);
+    const vis = Math.max(0, Math.cos(angle));
+    p._emojiElement.style.setProperty('--emoji-scale', ((0.5 + vis * 0.7) * altF).toFixed(3));
+    p._emojiElement.style.setProperty('--emoji-opacity', (0.18 + vis * 0.82).toFixed(3));
+  });
+}
+(function loop() { updateEmojiScale(); requestAnimationFrame(loop); })();
 
-  getVisiblePoints().forEach(point => {
-    if (!point._emojiElement) {
-      return;
-    }
+// ══════════════════════════════════════════════
+//  LAYER UPDATE
+// ══════════════════════════════════════════════
+function updateLayers() {
+  const pts = getVisiblePoints();
+  globe.pointsData(pts);
+  globe.htmlElementsData(pts);
+  // satellite orbits visible only when satellite layer on
+  const arcs = layerState.satellite ? [...satOrbitArcs] : [];
+  globe.arcsData(arcs);
+  syncLayerButtons();
+  requestAnimationFrame(updateEmojiScale);
+  updateStatsBar();
+}
 
-    const angle = getAngularDistance(point.lat, point.lng, pov.lat, pov.lng);
-    const visibility = Math.max(0, Math.cos(angle));
-    const scale = (0.5 + visibility * 0.7) * altitudeFactor;
-    const opacity = 0.18 + visibility * 0.82;
-
-    point._emojiElement.style.setProperty('--emoji-scale', scale.toFixed(3));
-    point._emojiElement.style.setProperty('--emoji-opacity', opacity.toFixed(3));
+function syncLayerButtons() {
+  document.querySelectorAll('.layer-tile').forEach(btn => {
+    const k = btn.dataset.layer;
+    const on = layerState[k];
+    btn.classList.toggle('is-off', !on);
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', String(on));
+    const s = btn.querySelector('.tile-state');
+    if (s) s.textContent = on ? 'ON' : 'OFF';
   });
 }
 
-function startEmojiScaleLoop() {
-  const tick = () => {
-    updateEmojiScale();
-    requestAnimationFrame(tick);
-  };
-
-  requestAnimationFrame(tick);
+function updateStatsBar() {
+  countryStatsBar.capitals.textContent = layerState.capital ? capitals.length : 0;
+  countryStatsBar.cities.textContent = layerState.city ? bigCities.length : 0;
+  countryStatsBar.cameras.textContent = layerState.camera ? liveCameras.length : 0;
+  countryStatsBar.airports.textContent = layerState.airport ? airports.length : 0;
+  countryStatsBar.military.textContent = layerState.military ? militaryBases.length : 0;
+  countryStatsBar.naval.textContent = layerState.naval ? navalFleets.length : 0;
+  countryStatsBar.nuclear.textContent = layerState.nuclear ? nuclearPlants.length : 0;
+  countryStatsBar.satellites.textContent = layerState.satellite ? satellites.length : 0;
 }
 
-function getVisiblePoints() {
-  return Object.entries(layerConfig)
-    .filter(([key]) => layerState[key])
-    .flatMap(([, config]) => config.data);
+// ══════════════════════════════════════════════
+//  COUNTRY PANEL
+// ══════════════════════════════════════════════
+function buildDetailSection(title, items, renderFn) {
+  if (!items.length) return '';
+  const rows = items.map(renderFn).join('');
+  return `<div class="cp-section"><div class="cp-section-title">${title}</div>${rows}</div>`;
 }
 
-function getCountryPoints(countryName) {
-  const countryKey = normalizeCountryKey(countryName);
-  return allDataPoints.filter(point => normalizeCountryKey(canonicalCountryName(point.country)) === countryKey);
+function openCountryPanel(label) {
+  const pts = getCountryPoints(label);
+  const flag = flagMap[label] || '🌐';
+
+  cpFlag.textContent = flag;
+  cpName.textContent = label;
+  cpSubtitle.textContent = `${pts.length} obiektów w bazie danych`;
+
+  cpStatEls.capitals.textContent   = pts.filter(p=>p.type==='capital').length;
+  cpStatEls.cities.textContent     = pts.filter(p=>p.type==='city').length;
+  cpStatEls.cameras.textContent    = pts.filter(p=>p.type==='camera').length;
+  cpStatEls.airports.textContent   = pts.filter(p=>p.type==='airport').length;
+  cpStatEls.military.textContent   = pts.filter(p=>p.type==='military').length;
+  cpStatEls.naval.textContent      = pts.filter(p=>p.type==='naval').length;
+  cpStatEls.nuclear.textContent    = pts.filter(p=>p.type==='nuclear').length;
+  cpStatEls.satellites.textContent = pts.filter(p=>p.type==='satellite').length;
+
+  let html = '';
+
+  html += buildDetailSection('📹 KAMERY LIVE', pts.filter(p=>p.type==='camera'), p =>
+    `<div class="cp-item"><span class="cp-item-icon">📹</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-live">LIVE ${p.viewers}</span></div>`);
+
+  html += buildDetailSection('🛫 LOTNISKA', pts.filter(p=>p.type==='airport'), p =>
+    `<div class="cp-item"><span class="cp-item-icon">🛫</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-active">ACTIVE</span></div>`);
+
+  html += buildDetailSection('⚓ BAZY WOJSKOWE', pts.filter(p=>p.type==='military'), p =>
+    `<div class="cp-item"><span class="cp-item-icon">⚓</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-military">${p.branch}</span></div>`);
+
+  html += buildDetailSection('🌊 FLOTA MORSKA', pts.filter(p=>p.type==='naval'), p =>
+    `<div class="cp-item"><span class="cp-item-icon">🌊</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-naval">${p.class}</span></div>`);
+
+  html += buildDetailSection('☢️ ELEKTROWNIE JĄDROWE', pts.filter(p=>p.type==='nuclear'), p =>
+    `<div class="cp-item"><span class="cp-item-icon">☢️</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-nuclear">${p.status==='active'?'ONLINE':'OFFLINE'} ${p.mw}MW</span></div>`);
+
+  html += buildDetailSection('🛰️ SATELITY', pts.filter(p=>p.type==='satellite'), p =>
+    `<div class="cp-item"><span class="cp-item-icon">🛰️</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-orbit">${p.orbit} ${p.alt}km</span></div>`);
+
+  if (!html) html = '<div class="cp-section"><p class="cp-empty">Brak szczegółowych danych dla tego kraju.</p></div>';
+
+  cpDetails.innerHTML = html;
+  cpPanel.classList.add('visible');
 }
 
-function updateCountryStats() {
-  const countryPoints = selectedCountryKey ? getCountryPoints(selectedCountryLabel) : [];
-  const capitalsCount = countryPoints.filter(point => point.type === 'capital').length;
-  const citiesCount = countryPoints.filter(point => point.type === 'city').length;
-  const camerasCount = countryPoints.filter(point => point.type === 'camera').length;
-  const airportsCount = countryPoints.filter(point => point.type === 'airport').length;
-
-  countryStatsElements.capitals.textContent = capitalsCount.toLocaleString('pl-PL');
-  countryStatsElements.cities.textContent = citiesCount.toLocaleString('pl-PL');
-  countryStatsElements.cameras.textContent = camerasCount.toLocaleString('pl-PL');
-  countryStatsElements.airports.textContent = airportsCount.toLocaleString('pl-PL');
-  selectedCountryNameElement.textContent = selectedCountryLabel;
+function closeCountryPanel() {
+  cpPanel.classList.remove('visible');
 }
 
-function refreshCountryHighlight() {
-  globe.polygonsData(countryFeatures);
-}
+cpClose.addEventListener('click', () => {
+  closeCountryPanel();
+  selectedCountryKey = '';
+  selectedCountryLabel = '';
+  selectedCountryNameElement.textContent = 'Kliknij kraj';
+  refreshCountryHighlight();
+});
 
-function setSendMode(active) {
-  sendModeActive = active;
-  sendFlightButton.classList.toggle('is-active', active);
-  sendFlightButton.textContent = active ? 'Target' : 'Send';
-  airportSendStatusElement.textContent = active ? 'Kliknij kraj docelowy' : 'Tryb standardowy';
-}
-
-function flattenCoordinates(coords, out) {
-  if (!Array.isArray(coords) || coords.length === 0) {
-    return;
-  }
-
-  if (typeof coords[0] === 'number') {
-    out.push({ lng: coords[0], lat: coords[1] });
-    return;
-  }
-
-  coords.forEach(entry => flattenCoordinates(entry, out));
-}
-
-function getFeatureCenter(feature) {
-  const points = [];
-  flattenCoordinates(feature?.geometry?.coordinates, points);
-  if (!points.length) {
-    return null;
-  }
-
-  const sum = points.reduce((acc, point) => {
-    acc.lat += point.lat;
-    acc.lng += point.lng;
-    return acc;
-  }, { lat: 0, lng: 0 });
-
-  return {
-    lat: sum.lat / points.length,
-    lng: sum.lng / points.length,
-  };
-}
-
-function addLandingEffect(destination) {
-  const landing = {
-    id: `${Date.now()}-${Math.random()}`,
-    lat: destination.lat,
-    lng: destination.lng,
-    maxRadius: 4.5,
-    speed: 2.6,
-    color: t => `rgba(126, 233, 255, ${Math.max(0, 0.72 * (1 - t))})`,
-  };
-
-  activeLandings.push(landing);
-  globe.ringsData([...activeLandings]);
-
-  setTimeout(() => {
-    const landingIndex = activeLandings.findIndex(item => item.id === landing.id);
-    if (landingIndex !== -1) {
-      activeLandings.splice(landingIndex, 1);
-      globe.ringsData([...activeLandings]);
-    }
-  }, 1700);
-}
-
-function sendFlightToCountry(feature) {
-  const destination = getFeatureCenter(feature);
-  if (!destination) {
-    setSendMode(false);
-    return;
-  }
-
-  const flight = {
-    id: `${Date.now()}-${Math.random()}`,
-    startLat: flightOrigin.lat,
-    startLng: flightOrigin.lng,
-    endLat: destination.lat,
-    endLng: destination.lng,
-    altitude: 0.31,
-    duration: 2600,
-    color: ['#74dcff', '#ffffff'],
-  };
-
-  activeFlights.push(flight);
-  globe.arcsData([...activeFlights]);
-
-  setTimeout(() => {
-    const flightIndex = activeFlights.findIndex(item => item.id === flight.id);
-    if (flightIndex !== -1) {
-      activeFlights.splice(flightIndex, 1);
-      globe.arcsData([...activeFlights]);
-      addLandingEffect(destination);
-    }
-  }, flight.duration + 120);
-
-  setSendMode(false);
-}
+// ══════════════════════════════════════════════
+//  SELECT COUNTRY
+// ══════════════════════════════════════════════
+function refreshCountryHighlight() { globe.polygonsData(countryFeatures); }
 
 function selectCountry(feature) {
-  if (!feature) {
-    return;
-  }
-
-  const clickedKey = getFeatureCountryKey(feature);
+  if (!feature) return;
+  const clickedKey   = getFeatureCountryKey(feature);
   const clickedLabel = canonicalCountryName(feature.properties?.ADMIN || feature.properties?.name || '');
 
   if (sendModeActive) {
     selectedCountryKey = clickedKey;
     selectedCountryLabel = clickedLabel;
-    updateCountryStats();
+    selectedCountryNameElement.textContent = clickedLabel;
     refreshCountryHighlight();
     sendFlightToCountry(feature);
     return;
@@ -830,85 +866,87 @@ function selectCountry(feature) {
 
   if (selectedCountryKey === clickedKey) {
     selectedCountryKey = '';
-    selectedCountryLabel = 'Kliknij kraj';
+    selectedCountryLabel = '';
+    selectedCountryNameElement.textContent = 'Kliknij kraj';
+    closeCountryPanel();
   } else {
     selectedCountryKey = clickedKey;
     selectedCountryLabel = clickedLabel;
+    selectedCountryNameElement.textContent = clickedLabel;
+    openCountryPanel(clickedLabel);
   }
-
-  updateCountryStats();
   refreshCountryHighlight();
 }
 
-function syncLayerButtons() {
-  layerButtons.forEach(button => {
-    const layerKey = button.dataset.layer;
-    const enabled = layerState[layerKey];
-    button.classList.toggle('is-off', !enabled);
-    button.classList.toggle('is-on', enabled);
-    button.setAttribute('aria-pressed', String(enabled));
-    button.querySelector('.tile-state').textContent = enabled ? 'ON' : 'OFF';
-  });
+// ══════════════════════════════════════════════
+//  FLIGHT SYSTEM
+// ══════════════════════════════════════════════
+function setSendMode(active) {
+  sendModeActive = active;
+  sendFlightButton.classList.toggle('is-active', active);
+  sendFlightButton.textContent = active ? 'Target' : 'Send';
+  airportSendStatusElement.textContent = active ? 'Kliknij kraj docelowy' : 'Tryb standardowy';
 }
 
-function updateLayers() {
-  const visiblePoints = getVisiblePoints();
-  globe.pointsData(visiblePoints);
-  globe.htmlElementsData(visiblePoints);
-  syncLayerButtons();
-  requestAnimationFrame(updateEmojiScale);
+function addLandingEffect(dest) {
+  const ring = { id:`l-${Date.now()}`, lat:dest.lat, lng:dest.lng, maxRadius:4.5, speed:2.6, color:t=>`rgba(126,233,255,${Math.max(0,0.72*(1-t))})` };
+  activeLandings.push(ring);
+  globe.ringsData([...activeLandings]);
+  setTimeout(() => {
+    const i = activeLandings.findIndex(r => r.id === ring.id);
+    if (i !== -1) { activeLandings.splice(i,1); globe.ringsData([...activeLandings]); }
+  }, 1700);
 }
 
-layerButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    const layerKey = button.dataset.layer;
-    layerState[layerKey] = !layerState[layerKey];
-    if (layerKey === 'airport' && !layerState[layerKey]) {
-      setSendMode(false);
-    }
+function sendFlightToCountry(feature) {
+  const dest = getFeatureCenter(feature);
+  if (!dest) { setSendMode(false); return; }
+  const flight = {
+    id: `f-${Date.now()}`, startLat:flightOrigin.lat, startLng:flightOrigin.lng,
+    endLat:dest.lat, endLng:dest.lng, altitude:0.31, duration:2600,
+    color:['#74dcff','#ffffff'],
+  };
+  activeFlights.push(flight);
+  // merge with satellite orbits
+  globe.arcsData([...(layerState.satellite ? satOrbitArcs : []), ...activeFlights]);
+  setTimeout(() => {
+    const i = activeFlights.findIndex(f => f.id === flight.id);
+    if (i !== -1) { activeFlights.splice(i,1); globe.arcsData([...(layerState.satellite ? satOrbitArcs : []), ...activeFlights]); addLandingEffect(dest); }
+  }, flight.duration + 120);
+  setSendMode(false);
+}
+
+// ══════════════════════════════════════════════
+//  LAYER BUTTON WIRING
+// ══════════════════════════════════════════════
+document.querySelectorAll('.layer-tile').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const k = btn.dataset.layer;
+    layerState[k] = !layerState[k];
+    if (k === 'airport' && !layerState[k]) setSendMode(false);
     updateLayers();
   });
-
-  button.addEventListener('keydown', event => {
-    if ((event.key === 'Enter' || event.key === ' ') && button.tagName !== 'BUTTON') {
-      event.preventDefault();
-      button.click();
-    }
+  btn.addEventListener('keydown', e => {
+    if ((e.key==='Enter'||e.key===' ') && btn.tagName!=='BUTTON') { e.preventDefault(); btn.click(); }
   });
 });
 
-sendFlightButton.addEventListener('click', event => {
-  event.stopPropagation();
-  if (!layerState.airport) {
-    layerState.airport = true;
-    updateLayers();
-  }
+sendFlightButton.addEventListener('click', e => {
+  e.stopPropagation();
+  if (!layerState.airport) { layerState.airport = true; updateLayers(); }
   setSendMode(!sendModeActive);
 });
 
+// ══════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════
 updateLayers();
-startEmojiScaleLoop();
 
 fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
   .then(r => r.json())
-  .then(data => {
-    countryFeatures = data.features;
-    refreshCountryHighlight();
-  })
+  .then(data => { countryFeatures = data.features; refreshCountryHighlight(); })
   .catch(() => {});
 
-globe.controls().autoRotate = true;
-globe.controls().autoRotateSpeed = 0.4;
-globe.controls().enableDamping = true;
-globe.pointOfView({ lat: 20, lng: 15, altitude: 2.0 });
-
-function resize() {
-  globe.width(window.innerWidth).height(window.innerHeight);
-}
-window.addEventListener('resize', resize);
-resize();
-
-updateCountryStats();
 </script>
 </body>
 </html>

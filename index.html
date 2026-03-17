@@ -288,14 +288,483 @@ canvas#cb-canvas{display:block;cursor:crosshair;}
 }
 #gf-open-btn:hover{background:rgba(0,80,40,0.7);border-color:rgba(0,255,136,0.6);box-shadow:0 0 16px rgba(0,255,136,0.2);}
 #gf-iframe-wrap{display:none;}
-#gf-iframe-wrap.visible{display:block;}
-#gf-iframe{position:fixed;inset:0;z-index:110;width:100%;height:100%;border:none;}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#050a14; --bg2:rgba(8,16,36,0.98); --bg3:rgba(12,24,52,0.7);
+  --border:rgba(60,120,255,0.18); --border2:rgba(80,160,255,0.28);
+  --cyan:#5bf; --green:#00ff88; --red:#ff5050; --yellow:#ffd050;
+  --purple:#c880ff; --text:#c8d8f0; --text2:rgba(160,200,240,0.6);
+  --tile:linear-gradient(135deg,rgba(11,20,36,0.92),rgba(18,39,74,0.6));
+}
+body{background:var(--bg);font-family:'Courier New',monospace;color:var(--text);overflow:hidden;height:100vh;}
+#gf-overlay{
+  position:fixed;inset:0;z-index:110;display:none;flex-direction:column;
+  background:var(--bg);
+}
+#gf-overlay.visible{display:flex;}
+@keyframes gfFadeIn{from{opacity:0;transform:scale(0.98)}to{opacity:1;transform:scale(1)}}
+#gf-topbar{
+  flex-shrink:0;height:52px;
+  background:rgba(4,9,22,0.98);border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;gap:0;backdrop-filter:blur(12px);z-index:120;
+}
+#gf-logo{padding:0 22px;font-size:15px;font-weight:700;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;border-right:1px solid var(--border);white-space:nowrap;}
+#gf-logo span{color:var(--green);}
+#gf-nav{display:flex;gap:0;flex:1;}
+.gf-nav-btn{
+  padding:0 18px;height:52px;display:flex;align-items:center;gap:7px;
+  font-family:'Courier New',monospace;font-size:9px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--text2);
+  border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;
+  transition:all 0.2s;white-space:nowrap;
+}
+.gf-nav-btn:hover{color:var(--text);background:rgba(60,120,255,0.06);}
+.gf-nav-btn.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+#gf-player-pill{margin-left:auto;margin-right:14px;display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;border:1px solid var(--border2);background:rgba(20,40,80,0.5);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;}
+#gf-back{padding:6px 14px;margin-right:14px;border-radius:8px;border:1px solid var(--border);background:rgba(20,40,80,0.4);color:#7ab4ff;font-size:10px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:background 0.2s;text-transform:uppercase;}
+#gf-back:hover{background:rgba(40,80,160,0.6);}
+.gf-nav-icon{font-size:14px;}
+#gf-body{flex:1;display:flex;overflow:hidden;min-height:0;}
+#gf-sidebar{width:260px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:14px 12px;scrollbar-width:thin;scrollbar-color:rgba(60,120,255,0.3) transparent;}
+.gf-sidebar-section{margin-bottom:18px;}
+.gf-sidebar-title{font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;padding-left:8px;border-left:2px solid var(--cyan);}
+#gf-my-profile{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border2);border-radius:14px;background:var(--tile);cursor:pointer;margin-bottom:4px;transition:border-color 0.2s;}
+#gf-my-profile:hover{border-color:var(--cyan);}
+.gf-avatar{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:22px;border:2px solid var(--border2);background:rgba(20,40,80,0.5);}
+.gf-profile-name{font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:1px;}
+.gf-profile-sub{font-size:8px;color:var(--text2);letter-spacing:1px;margin-top:2px;}
+.gf-country-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;cursor:pointer;margin-bottom:4px;transition:background 0.15s;font-size:10px;}
+.gf-country-item:hover{background:rgba(60,120,255,0.1);}
+.gf-country-item.active{background:rgba(60,120,255,0.15);color:var(--cyan);}
+.gf-ci-flag{font-size:16px;flex-shrink:0;} .gf-ci-name{flex:1;font-weight:600;letter-spacing:0.5px;}
+.gf-ci-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-neutral{background:rgba(140,180,240,0.4);} .dot-ally{background:var(--green);} .dot-war{background:var(--red);} .dot-player{background:var(--cyan);}
+#gf-center{flex:1;overflow-y:auto;padding:18px 20px;scrollbar-width:thin;scrollbar-color:rgba(60,120,255,0.3) transparent;}
+.gf-post{border:1px solid var(--border);border-radius:16px;background:var(--tile);margin-bottom:14px;overflow:hidden;transition:border-color 0.2s;}
+.gf-post:hover{border-color:var(--border2);}
+.gf-post-header{display:flex;align-items:center;gap:10px;padding:12px 14px 8px;}
+.gf-post-avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:20px;border:1px solid var(--border);background:rgba(20,40,80,0.5);}
+.gf-post-meta{flex:1;} .gf-post-author{font-size:10px;font-weight:700;color:var(--cyan);letter-spacing:1px;}
+.gf-post-source{font-size:8px;color:var(--text2);letter-spacing:1px;margin-top:1px;}
+.gf-post-time{font-size:8px;color:var(--text2);letter-spacing:1px;white-space:nowrap;}
+.gf-post-tag{font-size:7px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:999px;margin-left:6px;}
+.tag-war{background:rgba(255,80,80,0.15);color:var(--red);border:1px solid rgba(255,80,80,0.3);}
+.tag-ally{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.25);}
+.tag-spy{background:rgba(200,128,255,0.1);color:var(--purple);border:1px solid rgba(200,128,255,0.25);}
+.tag-disaster{background:rgba(255,208,80,0.1);color:var(--yellow);border:1px solid rgba(255,208,80,0.25);}
+.tag-diplo{background:rgba(90,180,255,0.1);color:var(--cyan);border:1px solid rgba(90,180,255,0.25);}
+.tag-econ{background:rgba(60,220,130,0.1);color:#40dd88;border:1px solid rgba(60,220,130,0.25);}
+.gf-post-body{padding:0 14px 10px;font-size:11px;line-height:1.7;color:var(--text);}
+.gf-post-body b{color:var(--cyan);}
+.gf-spy-photo{margin:8px 14px 10px;border-radius:10px;overflow:hidden;border:1px solid var(--border2);background:rgba(4,10,28,0.8);}
+.gf-spy-photo svg{display:block;width:100%;height:auto;}
+.gf-spy-caption{padding:5px 10px;font-size:8px;color:var(--text2);letter-spacing:1px;border-top:1px solid var(--border);display:flex;justify-content:space-between;}
+.gf-post-footer{display:flex;gap:6px;padding:8px 14px;border-top:1px solid var(--border);}
+.gf-react-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(20,40,80,0.3);font-size:9px;color:var(--text2);cursor:pointer;transition:all 0.2s;font-family:'Courier New',monospace;}
+.gf-react-btn:hover{border-color:var(--border2);color:var(--text);}
+.gf-react-btn.reacted{border-color:var(--cyan);color:var(--cyan);background:rgba(60,120,255,0.1);}
+#gf-right{width:300px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);padding:14px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:rgba(60,120,255,0.3) transparent;}
+.gf-profile-card{border:1px solid var(--border2);border-radius:16px;background:var(--tile);overflow:hidden;}
+.gf-profile-banner{height:56px;display:flex;align-items:center;justify-content:center;font-size:28px;letter-spacing:6px;background:linear-gradient(135deg,rgba(20,44,90,0.8),rgba(30,60,110,0.5));}
+.gf-profile-body{padding:10px 14px 14px;}
+.gf-profile-flag{font-size:32px;line-height:1;margin-bottom:6px;}
+.gf-profile-cname{font-size:14px;font-weight:700;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;}
+.gf-profile-leader{font-size:9px;color:var(--text2);letter-spacing:1.5px;margin-top:3px;}
+.gf-profile-bio{font-size:9px;color:var(--text2);line-height:1.6;margin-top:8px;letter-spacing:0.5px;}
+.gf-profile-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;}
+.gf-pstat{padding:8px 6px;border-radius:10px;background:rgba(20,40,80,0.4);border:1px solid var(--border);text-align:center;}
+.gf-pstat-val{font-size:14px;font-weight:700;color:var(--cyan);}
+.gf-pstat-lbl{font-size:7px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+.gf-action-btn{width:100%;padding:9px;border-radius:10px;margin-bottom:6px;border:1px solid var(--border2);background:rgba(20,40,80,0.4);color:var(--text);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;font-family:'Courier New',monospace;display:flex;align-items:center;gap:8px;justify-content:center;}
+.gf-action-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(60,120,255,0.1);}
+.gf-action-btn.danger{border-color:rgba(255,80,80,0.3);color:var(--red);}
+.gf-action-btn.danger:hover{border-color:var(--red);background:rgba(255,80,80,0.1);}
+.gf-action-btn.success{border-color:rgba(0,255,136,0.3);color:var(--green);}
+.gf-action-btn.success:hover{border-color:var(--green);background:rgba(0,255,136,0.1);}
+.gf-spy-status{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(12,24,52,0.5);font-size:9px;color:var(--text2);margin-bottom:8px;line-height:1.6;}
+.gf-spy-status b{color:var(--purple);}
+.gf-relations{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.gf-rel-badge{font-size:8px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:1px;text-transform:uppercase;}
+#gf-toast{position:fixed;bottom:24px;right:24px;z-index:200;background:rgba(4,10,28,0.96);border:1px solid var(--border2);border-radius:12px;padding:10px 16px;font-size:10px;color:var(--text);letter-spacing:0.8px;transform:translateY(60px);opacity:0;transition:all 0.3s cubic-bezier(0.22,0.61,0.36,1);pointer-events:none;max-width:320px;}
+#gf-toast.show{transform:translateY(0);opacity:1;}
+.gf-view{display:none;} .gf-view.active{display:block;}
+.tv-post{border:1px solid var(--border);border-radius:14px;background:var(--tile);margin-bottom:12px;overflow:hidden;}
+.tv-header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(255,80,50,0.1),transparent);}
+.tv-logo{font-size:18px;} .tv-channel{font-size:11px;font-weight:700;color:#ff9060;letter-spacing:1px;}
+.tv-ticker{font-size:8px;color:var(--text2);letter-spacing:1px;}
+.tv-headline{padding:10px 14px;font-size:12px;font-weight:700;color:var(--text);line-height:1.5;}
+.tv-body{padding:0 14px 12px;font-size:9px;color:var(--text2);line-height:1.6;}
+.spy-gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0;}
+.spy-thumb{border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.2s;}
+.spy-thumb:hover{border-color:var(--purple);}
+.spy-thumb svg{display:block;width:100%;height:auto;}
+.spy-thumb-cap{font-size:7px;color:var(--text2);padding:4px 7px;letter-spacing:0.8px;}
+#gf-composer{padding:12px 14px;border:1px solid var(--border2);border-radius:14px;background:var(--tile);margin-bottom:14px;}
+#gf-composer-input{width:100%;background:rgba(4,10,28,0.6);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Courier New',monospace;font-size:10px;padding:8px 10px;resize:none;height:60px;outline:none;transition:border-color 0.2s;}
+#gf-composer-input:focus{border-color:var(--cyan);}
+#gf-composer-footer{display:flex;justify-content:flex-end;margin-top:8px;}
+#gf-post-btn{padding:5px 14px;border-radius:999px;border:1px solid var(--cyan);background:rgba(60,120,255,0.15);color:var(--cyan);font-size:9px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:'Courier New',monospace;transition:background 0.2s;}
+#gf-post-btn:hover{background:rgba(60,120,255,0.3);}
+
 </style>
 </head>
 <body>
 
 <button id="gf-open-btn" onclick="openGF()">🌐 GlobalFace</button>
-<div id="gf-iframe-wrap"><iframe id="gf-iframe" src="social.html"></iframe></div>
+<div id="gf-overlay">
+<div id="gf-topbar">
+  <div id="gf-logo">🌐 Global<span>Face</span></div>
+  <nav id="gf-nav">
+    <button class="gf-nav-btn active" data-view="feed"><span class="gf-nav-icon">📰</span>Feed</button>
+    <button class="gf-nav-btn" data-view="tv"><span class="gf-nav-icon">📺</span>Media</button>
+    <button class="gf-nav-btn" data-view="spies"><span class="gf-nav-icon">🕵️</span>Szpiedzy</button>
+    <button class="gf-nav-btn" data-view="diplomacy"><span class="gf-nav-icon">🤝</span>Dyplomacja</button>
+  </nav>
+  <div id="gf-player-pill"><span id="gf-player-flag">🌍</span><span id="gf-player-name">Wybierz kraj</span></div>
+  <button id="gf-back">← Globus</button>
+</div>
+<div id="gf-body">
+<div id="gf-sidebar">
+  <div class="gf-sidebar-section">
+    <div class="gf-sidebar-title">Mój profil</div>
+    <div id="gf-my-profile">
+      <div class="gf-avatar" id="gf-my-avatar">🌍</div>
+      <div><div class="gf-profile-name" id="gf-my-name">Brak kraju</div><div class="gf-profile-sub" id="gf-my-sub">Wybierz kraj na globusie</div></div>
+    </div>
+  </div>
+  <div class="gf-sidebar-section">
+    <div class="gf-sidebar-title">Kraje online</div>
+    <div id="gf-country-list"></div>
+  </div>
+  <div class="gf-sidebar-section">
+    <div class="gf-sidebar-title">Trending</div>
+    <div id="gf-trending"></div>
+  </div>
+</div>
+<div id="gf-center">
+  <div id="view-feed" class="gf-view active">
+    <div id="gf-composer">
+      <textarea id="gf-composer-input" placeholder="Co dzieje się w Twoim kraju?"></textarea>
+      <div id="gf-composer-footer"><button id="gf-post-btn">📢 Opublikuj</button></div>
+    </div>
+    <div id="gf-feed-posts"></div>
+  </div>
+  <div id="view-tv" class="gf-view"><div id="gf-tv-feed"></div></div>
+  <div id="view-spies" class="gf-view"><div id="gf-spy-gallery-wrap"></div></div>
+  <div id="view-diplomacy" class="gf-view"><div id="gf-diplomacy-wrap"></div></div>
+</div>
+<div id="gf-right">
+  <div id="gf-profile-card-wrap"></div>
+  <div id="gf-action-wrap"></div>
+</div>
+</div>
+</div>
+<div id="gf-toast"></div>
+
+<script>
+const GF_COUNTRIES=[
+  {id:'polska',   name:'Polska',          flag:'🇵🇱',leader:'Premier Kowalski',   bio:'Środkowoeuropejskie mocarstwo regionalne z silną tradycją obronną.'},
+  {id:'usa',      name:'USA',             flag:'🇺🇸',leader:'Prezydent Adams',     bio:'Globalne supermocarstwo, centrum technologii i finansów.'},
+  {id:'niemcy',   name:'Niemcy',          flag:'🇩🇪',leader:'Kanclerz Weber',      bio:'Przemysłowe serce Europy. Eksporter numer jeden.'},
+  {id:'francja',  name:'Francja',         flag:'🇫🇷',leader:'Prezydent Dupont',    bio:'Stały członek RB ONZ. Potęga nuklearna.'},
+  {id:'rosja',    name:'Rosja',           flag:'🇷🇺',leader:'Prezydent Iwanow',    bio:'Największy kraj świata. Zasoby naturalne i arsenał nuklearny.'},
+  {id:'chiny',    name:'Chiny',           flag:'🇨🇳',leader:'Sekretarz Li',        bio:'Druga gospodarka świata. Rosnąca potęga militarna.'},
+  {id:'uk',       name:'Wielka Brytania', flag:'🇬🇧',leader:'Premier Thatcher II', bio:'Stały członek RB ONZ. Centrum finansowe — Londyn.'},
+  {id:'japonia',  name:'Japonia',         flag:'🇯🇵',leader:'Premier Tanaka',      bio:'Technologiczny lider Azji.'},
+  {id:'indie',    name:'Indie',           flag:'🇮🇳',leader:'Premier Singh',       bio:'Najludniejszy kraj. Rosnąca potęga.'},
+  {id:'brazylia', name:'Brazylia',        flag:'🇧🇷',leader:'Prezydent Silva',     bio:'Największe państwo Ameryki Łacińskiej.'},
+  {id:'ukraina',  name:'Ukraina',         flag:'🇺🇦',leader:'Prezydent Kovalenko', bio:'Kraj w stanie ciągłej mobilizacji.'},
+  {id:'turcja',   name:'Turcja',          flag:'🇹🇷',leader:'Prezydent Yilmaz',    bio:'Pomost między Wschodem a Zachodem.'},
+  {id:'izrael',   name:'Izrael',          flag:'🇮🇱',leader:'Premier Ben-David',   bio:'Centrum technologii Bliskiego Wschodu.'},
+  {id:'iran',     name:'Iran',            flag:'🇮🇷',leader:'Najwyższy Przywódca', bio:'Regionalna potęga. Sporny program nuklearny.'},
+  {id:'korea_pd', name:'Korea Płd.',      flag:'🇰🇷',leader:'Prezydent Park',      bio:'Cud gospodarczy Azji.'},
+];
+const GF_RELATIONS={};
+GF_COUNTRIES.forEach(c=>{GF_RELATIONS[c.id]={};GF_COUNTRIES.forEach(d=>{if(c.id!==d.id)GF_RELATIONS[c.id][d.id]='neutral';});});
+function setRelation(a,b,rel){GF_RELATIONS[a][b]=rel;GF_RELATIONS[b][a]=rel;}
+setRelation('polska','niemcy','ally'); setRelation('polska','usa','ally');
+setRelation('usa','uk','ally'); setRelation('usa','japonia','ally'); setRelation('usa','korea_pd','ally');
+setRelation('chiny','rosja','ally'); setRelation('rosja','iran','ally');
+setRelation('ukraina','rosja','war'); setRelation('izrael','iran','war');
+const GF_SPIES=[];
+let gfPlayerCountry=null,gfViewingCountry=null,gfPosts=[],gfPostId=0;
+
+const TEMPLATES={
+  war:[(a,b)=>`<b>${a}</b> wypowiedziało wojnę <b>${b}</b>. Mobilizacja sił zbrojnych w toku.`,(a,b)=>`Siły <b>${a}</b> przekroczyły granicę <b>${b}</b>. ONZ zwołana.`],
+  ally:[(a,b)=>`<b>${a}</b> i <b>${b}</b> podpisały pakt obronny. "Historyczny moment".`,(a,b)=>`Szczyt: <b>${a}</b> i <b>${b}</b> formalizują sojusz strategiczny.`],
+  disaster:[(c)=>`PILNE: Katastrofa lotnicza nad <b>${c}</b>. Służby na miejscu.`,(c)=>`Trzęsienie ziemi 6.8 w <b>${c}</b>. Stan wyjątkowy.`,(c)=>`Cyberatak na infrastrukturę <b>${c}</b>. Paraliż systemów.`,(c)=>`Powódź stulecia w <b>${c}</b>. 200 000 ewakuowanych.`],
+  diplo:[(a,b)=>`Ambasador <b>${a}</b> wezwany do MSZ <b>${b}</b>.`,(a,b)=>`<b>${a}</b> i <b>${b}</b> wznawiają dialog. Pierwsze rozmowy ministrów.`],
+  econ:[(c)=>`<b>${c}</b> ogłasza rekordowy wzrost PKB +4.2%.`,(c)=>`Inflacja w <b>${c}</b> na najwyższym poziomie od dekady.`,(c)=>`<b>${c}</b> podpisuje umowę handlową 80 mld $. 50 000 nowych miejsc pracy.`],
+  spy:[(a,b)=>`Wywiad <b>${a}</b>: szpieg <b>${b}</b> zatrzymany przy instalacji wojskowej.`,(a,b)=>`Agent <b>${a}</b> sfotografował bazę rakietową <b>${b}</b>.`],
+};
+const TV_CHANNELS={polska:{name:'TVP Global',icon:'📡'},usa:{name:'CNN World',icon:'🦅'},niemcy:{name:'Deutsche Welt',icon:'🎯'},francja:{name:'France24',icon:'🗼'},rosja:{name:'RT News',icon:'🐻'},chiny:{name:'CCTV Global',icon:'🐉'},default:{name:'World News',icon:'🌐'}};
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function countryName(id){return GF_COUNTRIES.find(c=>c.id===id)?.name||id;}
+function timeAgo(ms){const s=Math.floor((Date.now()-ms)/1000);if(s<60)return`${s}s`;if(s<3600)return`${Math.floor(s/60)}m`;return`${Math.floor(s/3600)}h`;}
+</script>
+
+<script>
+const SPY_SUBJECTS=[{label:'Baza rakietowa',fn:svgMissileSite},{label:'Lotniskowiec',fn:svgCarrier},{label:'Centrum dowodzenia',fn:svgCommandCenter},{label:'Skład amunicji',fn:svgAmmoDepot},{label:'Radar',fn:svgRadarSite}];
+function svgNoise(seed){let d='';for(let i=0;i<40;i++){const x=(seed*17+i*73)%100,y=(seed*31+i*57)%60;d+=`<circle cx="${x}" cy="${y}" r="${0.3+((seed+i)%3)*0.3}" fill="rgba(100,180,100,0.3)"/>`;}return d;}
+function svgBase(seed,content){return`<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#0a1a0a"/>${svgNoise(seed)}<text x="4" y="10" fill="rgba(0,255,100,0.35)" font-family="monospace" font-size="6">SAT-IMG // CLASSIFIED</text><text x="4" y="116" fill="rgba(0,255,100,0.35)" font-family="monospace" font-size="5">${new Date().toISOString().slice(0,10)} // RES:0.5m</text>${content}</svg>`;}
+function svgMissileSite(seed){return svgBase(seed,`<g fill="none" stroke="rgba(0,255,80,0.7)" stroke-width="1"><rect x="60" y="30" width="80" height="60" rx="2"/><line x1="80" y1="30" x2="80" y2="90"/><line x1="100" y1="30" x2="100" y2="90"/><line x1="120" y1="30" x2="120" y2="90"/><line x1="60" y1="50" x2="140" y2="50"/><line x1="60" y1="70" x2="140" y2="70"/><rect x="73" y="33" width="10" height="15" fill="rgba(0,255,80,0.2)"/><rect x="93" y="33" width="10" height="15" fill="rgba(0,255,80,0.2)"/><circle cx="78" cy="25" r="3" fill="rgba(255,80,80,0.6)"/><circle cx="98" cy="22" r="3" fill="rgba(255,80,80,0.6)"/><circle cx="118" cy="25" r="3" fill="rgba(255,80,80,0.6)"/></g>`);}
+function svgCarrier(seed){return svgBase(seed,`<g fill="none" stroke="rgba(0,200,255,0.7)" stroke-width="1"><ellipse cx="100" cy="70" rx="70" ry="20" fill="rgba(0,150,200,0.15)"/><rect x="40" y="55" width="120" height="10" rx="2" fill="rgba(0,200,255,0.15)"/><rect x="55" y="45" width="90" height="10" rx="1"/><rect x="75" y="38" width="15" height="7" fill="rgba(0,200,255,0.2)"/><line x1="50" y1="55" x2="150" y2="55"/><text x="62" y="52" fill="rgba(0,255,200,0.6)" font-family="monospace" font-size="5">CVN-${70+seed%15}</text></g>`);}
+function svgCommandCenter(seed){return svgBase(seed,`<g fill="none" stroke="rgba(200,128,255,0.7)" stroke-width="1"><rect x="50" y="25" width="100" height="70" rx="3" fill="rgba(100,50,150,0.1)"/><rect x="60" y="35" width="80" height="50" rx="2"/><rect x="65" y="40" width="30" height="20" fill="rgba(200,128,255,0.15)"/><rect x="105" y="40" width="30" height="20" fill="rgba(200,128,255,0.15)"/><circle cx="100" cy="22" r="6" stroke="rgba(255,200,0,0.5)"/></g>`);}
+function svgAmmoDepot(seed){return svgBase(seed,`<g fill="none" stroke="rgba(255,200,80,0.7)" stroke-width="1">${[0,1,2,3,4,5].map(i=>`<rect x="${30+i*25}" y="40" width="20" height="35" rx="1" fill="rgba(255,200,80,0.1)"/>`).join('')}<rect x="25" y="75" width="150" height="5" fill="rgba(255,200,80,0.2)"/><text x="30" y="36" fill="rgba(255,80,80,0.7)" font-family="monospace" font-size="7">⚠ RESTRICTED</text></g>`);}
+function svgRadarSite(seed){return svgBase(seed,`<g fill="none" stroke="rgba(80,255,200,0.7)" stroke-width="1"><circle cx="100" cy="60" r="35" stroke-dasharray="4 3" opacity="0.4"/><circle cx="100" cy="60" r="22" stroke-dasharray="3 3" opacity="0.5"/><circle cx="100" cy="60" r="10"/><line x1="100" y1="60" x2="${100+30*Math.cos(seed)}" y2="${60+30*Math.sin(seed)}" stroke="rgba(80,255,200,0.9)" stroke-width="2"/><circle cx="100" cy="60" r="3" fill="rgba(80,255,200,0.8)"/></g>`);}
+function generateSpyPhoto(fromId,toId){const seed=(fromId.length*7+toId.length*13+Date.now()%97)%100;const subj=SPY_SUBJECTS[seed%SPY_SUBJECTS.length];return{svg:subj.fn(seed),label:subj.label};}
+
+function renderPost(p){
+  const tagHtml=`<span class="gf-post-tag tag-${p.type}">${p.typeLabel}</span>`;
+  const spyHtml=p.spyPhoto?`<div class="gf-spy-photo">${p.spyPhoto.svg}<div class="gf-spy-caption"><span>📍 ${p.spyPhoto.label}</span><span>🔒 CLASSIFIED</span></div></div>`:'';
+  return`<div class="gf-post" id="post-${p.id}">
+    <div class="gf-post-header"><div class="gf-post-avatar">${p.flag}</div><div class="gf-post-meta"><div class="gf-post-author">${p.author} ${tagHtml}</div><div class="gf-post-source">${p.source}</div></div><div class="gf-post-time">${timeAgo(p.ts)}</div></div>
+    <div class="gf-post-body">${p.body}</div>${spyHtml}
+    <div class="gf-post-footer">
+      <button class="gf-react-btn" onclick="gfReact(${p.id},'like')">👍 <span class="rc-${p.id}-like">${p.reactions.like}</span></button>
+      <button class="gf-react-btn" onclick="gfReact(${p.id},'shock')">😮 <span class="rc-${p.id}-shock">${p.reactions.shock}</span></button>
+      <button class="gf-react-btn" onclick="gfReact(${p.id},'war')">⚔️ <span class="rc-${p.id}-war">${p.reactions.war}</span></button>
+      <button class="gf-react-btn" onclick="gfReact(${p.id},'peace')">🕊️ <span class="rc-${p.id}-peace">${p.reactions.peace}</span></button>
+    </div></div>`;}
+function gfReact(postId,key){const p=gfPosts.find(p=>p.id===postId);if(!p)return;p.reactions[key]++;const el=document.querySelector(`.rc-${postId}-${key}`);if(el)el.textContent=p.reactions[key];}
+function addPost(type,typeLabel,authorId,body,spyPhoto=null){
+  const c=GF_COUNTRIES.find(c=>c.id===authorId)||{name:authorId,flag:'🌐',leader:'Agencja'};
+  const post={id:++gfPostId,type,typeLabel,author:c.name,flag:c.flag,source:c.leader||'Agencja',body,spyPhoto,ts:Date.now(),reactions:{like:Math.floor(Math.random()*40),shock:Math.floor(Math.random()*20),war:Math.floor(Math.random()*15),peace:Math.floor(Math.random()*10)}};
+  gfPosts.unshift(post);
+  const feed=document.getElementById('gf-feed-posts');if(feed)feed.insertAdjacentHTML('afterbegin',renderPost(post));return post;}
+function refreshFeedTimestamps(){gfPosts.forEach(p=>{const el=document.querySelector(`#post-${p.id} .gf-post-time`);if(el)el.textContent=timeAgo(p.ts);});}
+</script>
+
+<script>
+function renderSidebar(){
+  const list=document.getElementById('gf-country-list');if(!list)return;
+  list.innerHTML=GF_COUNTRIES.map(c=>{
+    const rel=gfPlayerCountry?GF_RELATIONS[gfPlayerCountry.id]?.[c.id]:'neutral';
+    const isPlayer=gfPlayerCountry?.id===c.id;
+    const dotClass=isPlayer?'dot-player':rel==='ally'?'dot-ally':rel==='war'?'dot-war':'dot-neutral';
+    const active=gfViewingCountry?.id===c.id?'active':'';
+    return`<div class="gf-country-item ${active}" onclick="gfViewCountry('${c.id}')"><span class="gf-ci-flag">${c.flag}</span><span class="gf-ci-name">${c.name}</span><span class="gf-ci-dot ${dotClass}"></span></div>`;
+  }).join('');
+  const trending=document.getElementById('gf-trending');
+  if(trending){['#Dyplomacja','#Szpiegostwo','#BreakingNews','#Sojusz','#Konflikt','#Gospodarka'].forEach(t=>{trending.innerHTML+=`<div class="gf-country-item" style="font-size:9px;color:var(--cyan)">${t}</div>`;});}
+}
+function renderProfileCard(c){
+  if(!c)return;
+  const rel=gfPlayerCountry&&gfPlayerCountry.id!==c.id?GF_RELATIONS[gfPlayerCountry.id]?.[c.id]:null;
+  const relBadge=rel?`<span class="gf-rel-badge" style="background:${rel==='ally'?'rgba(0,255,136,0.15)':rel==='war'?'rgba(255,80,80,0.15)':'rgba(140,180,240,0.1)'};color:${rel==='ally'?'var(--green)':rel==='war'?'var(--red)':'var(--text2)'};border:1px solid ${rel==='ally'?'rgba(0,255,136,0.3)':rel==='war'?'rgba(255,80,80,0.3)':'var(--border)'};">${rel==='ally'?'🤝 SOJUSZNIK':rel==='war'?'⚔️ WRÓG':'😐 NEUTRALNY'}</span>`:'';
+  document.getElementById('gf-profile-card-wrap').innerHTML=`
+    <div class="gf-profile-card">
+      <div class="gf-profile-banner">${c.flag}</div>
+      <div class="gf-profile-body">
+        <div class="gf-profile-flag">${c.flag}</div>
+        <div class="gf-profile-cname">${c.name}</div>
+        <div class="gf-profile-leader">👤 ${c.leader}</div>
+        <div class="gf-relations">${relBadge}</div>
+        <div class="gf-profile-bio">${c.bio}</div>
+        <div class="gf-profile-stats">
+          <div class="gf-pstat"><div class="gf-pstat-val">${Math.floor(Math.random()*500+50)}M</div><div class="gf-pstat-lbl">Pop</div></div>
+          <div class="gf-pstat"><div class="gf-pstat-val">${Math.floor(Math.random()*900+100)}B$</div><div class="gf-pstat-lbl">PKB</div></div>
+          <div class="gf-pstat"><div class="gf-pstat-val">${Math.floor(Math.random()*90+10)}</div><div class="gf-pstat-lbl">Siła</div></div>
+        </div>
+      </div>
+    </div>`;
+  renderActions(c);
+}
+function renderActions(c){
+  const wrap=document.getElementById('gf-action-wrap');
+  if(!wrap||!gfPlayerCountry||gfPlayerCountry.id===c.id){if(wrap)wrap.innerHTML='';return;}
+  const rel=GF_RELATIONS[gfPlayerCountry.id][c.id];
+  const spy=GF_SPIES.find(s=>s.fromId===gfPlayerCountry.id&&s.toId===c.id&&!s.done);
+  wrap.innerHTML=`
+    ${rel!=='ally'?`<button class="gf-action-btn success" onclick="gfProposePact('${c.id}')">🤝 Zaproponuj sojusz</button>`:''}
+    ${rel!=='war'?`<button class="gf-action-btn danger" onclick="gfDeclareWar('${c.id}')">⚔️ Wypowiedz wojnę</button>`:''}
+    ${rel==='war'?`<button class="gf-action-btn success" onclick="gfPeace('${c.id}')">🕊️ Zaproponuj pokój</button>`:''}
+    ${!spy?`<button class="gf-action-btn" onclick="gfSendSpy('${c.id}')">🕵️ Wyślij szpiega</button>`:`<div class="gf-spy-status"><b>🕵️ Szpieg w drodze</b><br>Misja w ${c.name} — <span id="spy-timer-${c.id}">…</span></div>`}
+    <button class="gf-action-btn" onclick="gfPostDiplo('${c.id}')">📢 Komunikat dyplomatyczny</button>`;
+}
+</script>
+
+<script>
+function renderSidebar(){
+  const list=document.getElementById('gf-country-list');if(!list)return;
+  list.innerHTML=GF_COUNTRIES.map(c=>{
+    const rel=gfPlayerCountry?GF_RELATIONS[gfPlayerCountry.id]?.[c.id]:'neutral';
+    const isPlayer=gfPlayerCountry?.id===c.id;
+    const dotClass=isPlayer?'dot-player':rel==='ally'?'dot-ally':rel==='war'?'dot-war':'dot-neutral';
+    const active=gfViewingCountry?.id===c.id?'active':'';
+    return`<div class="gf-country-item ${active}" onclick="gfViewCountry('${c.id}')"><span class="gf-ci-flag">${c.flag}</span><span class="gf-ci-name">${c.name}</span><span class="gf-ci-dot ${dotClass}"></span></div>`;
+  }).join('');
+  const trending=document.getElementById('gf-trending');
+  if(trending)trending.innerHTML=['#Dyplomacja','#Szpiegostwo','#BreakingNews','#Sojusz','#Konflikt','#Gospodarka'].map(t=>`<div class="gf-country-item" style="font-size:9px;color:var(--cyan)">${t}</div>`).join('');
+}
+
+function renderProfileCard(c){
+  if(!c)return;
+  const rel=gfPlayerCountry&&gfPlayerCountry.id!==c.id?GF_RELATIONS[gfPlayerCountry.id]?.[c.id]:null;
+  const relBadge=rel?`<span class="gf-rel-badge" style="background:${rel==='ally'?'rgba(0,255,136,0.15)':rel==='war'?'rgba(255,80,80,0.15)':'rgba(140,180,240,0.1)'};color:${rel==='ally'?'var(--green)':rel==='war'?'var(--red)':'var(--text2)'};border:1px solid ${rel==='ally'?'rgba(0,255,136,0.3)':rel==='war'?'rgba(255,80,80,0.3)':'var(--border)'};">${rel==='ally'?'🤝 SOJUSZNIK':rel==='war'?'⚔️ WRÓG':'😐 NEUTRALNY'}</span>`:'';
+  document.getElementById('gf-profile-card-wrap').innerHTML=`
+    <div class="gf-profile-card">
+      <div class="gf-profile-banner">${c.flag}</div>
+      <div class="gf-profile-body">
+        <div class="gf-profile-flag">${c.flag}</div>
+        <div class="gf-profile-cname">${c.name}</div>
+        <div class="gf-profile-leader">👤 ${c.leader}</div>
+        <div class="gf-relations">${relBadge}</div>
+        <div class="gf-profile-bio">${c.bio}</div>
+        <div class="gf-profile-stats">
+          <div class="gf-pstat"><div class="gf-pstat-val">${Math.floor(Math.random()*500+50)}M</div><div class="gf-pstat-lbl">Pop</div></div>
+          <div class="gf-pstat"><div class="gf-pstat-val">${Math.floor(Math.random()*900+100)}B$</div><div class="gf-pstat-lbl">PKB</div></div>
+          <div class="gf-pstat"><div class="gf-pstat-val">${Math.floor(Math.random()*90+10)}</div><div class="gf-pstat-lbl">Siła</div></div>
+        </div>
+      </div>
+    </div>`;
+  renderActions(c);
+}
+
+function renderActions(c){
+  const wrap=document.getElementById('gf-action-wrap');
+  if(!wrap||!gfPlayerCountry||gfPlayerCountry.id===c.id){if(wrap)wrap.innerHTML='';return;}
+  const rel=GF_RELATIONS[gfPlayerCountry.id][c.id];
+  const spy=GF_SPIES.find(s=>s.fromId===gfPlayerCountry.id&&s.toId===c.id&&!s.done);
+  wrap.innerHTML=`
+    ${rel!=='ally'?`<button class="gf-action-btn success" onclick="gfProposePact('${c.id}')">🤝 Zaproponuj sojusz</button>`:''}
+    ${rel!=='war'?`<button class="gf-action-btn danger" onclick="gfDeclareWar('${c.id}')">⚔️ Wypowiedz wojnę</button>`:''}
+    ${rel==='war'?`<button class="gf-action-btn success" onclick="gfPeace('${c.id}')">🕊️ Zaproponuj pokój</button>`:''}
+    ${!spy?`<button class="gf-action-btn" onclick="gfSendSpy('${c.id}')">🕵️ Wyślij szpiega</button>`:`<div class="gf-spy-status"><b>🕵️ Szpieg w drodze</b><br>Misja: ${c.name} — za: <span id="spy-timer-${c.id}">…</span></div>`}
+    <button class="gf-action-btn" onclick="gfPostDiplo('${c.id}')">📢 Komunikat</button>`;
+}
+</script>
+
+<script>
+function gfProposePact(toId){if(!gfPlayerCountry)return;setRelation(gfPlayerCountry.id,toId,'ally');const a=gfPlayerCountry.name,b=countryName(toId);addPost('ally','🤝 SOJUSZ',gfPlayerCountry.id,pick(TEMPLATES.ally)(a,b));addPost('ally','🤝 SOJUSZ',toId,`<b>${b}</b> potwierdza sojusz z <b>${a}</b>.`);gfToast(`🤝 Sojusz z ${b}!`);renderSidebar();renderProfileCard(GF_COUNTRIES.find(c=>c.id===toId));}
+function gfDeclareWar(toId){if(!gfPlayerCountry)return;setRelation(gfPlayerCountry.id,toId,'war');const a=gfPlayerCountry.name,b=countryName(toId);addPost('war','⚔️ WOJNA',gfPlayerCountry.id,pick(TEMPLATES.war)(a,b));addPost('war','⚔️ WOJNA',toId,`<b>${b}</b> odrzuca agresję <b>${a}</b>. "Będziemy bronić każdego centymetra."`);gfToast(`⚔️ Wojna z ${b}!`,'red');renderSidebar();renderProfileCard(GF_COUNTRIES.find(c=>c.id===toId));}
+function gfPeace(toId){if(!gfPlayerCountry)return;setRelation(gfPlayerCountry.id,toId,'neutral');const a=gfPlayerCountry.name,b=countryName(toId);addPost('diplo','🕊️ POKÓJ',gfPlayerCountry.id,`<b>${a}</b> proponuje zawieszenie broni z <b>${b}</b>.`);gfToast(`🕊️ Rozejm z ${b}.`);renderSidebar();renderProfileCard(GF_COUNTRIES.find(c=>c.id===toId));}
+function gfSendSpy(toId){
+  if(!gfPlayerCountry)return;
+  const duration=15000+Math.random()*20000;
+  const mission={fromId:gfPlayerCountry.id,toId,launched:Date.now(),duration,done:false};
+  GF_SPIES.push(mission);
+  gfToast(`🕵️ Szpieg wysłany do ${countryName(toId)}.`);
+  renderActions(GF_COUNTRIES.find(c=>c.id===toId));
+  const iv=setInterval(()=>{
+    const rem=Math.max(0,Math.round((mission.launched+mission.duration-Date.now())/1000));
+    const el=document.getElementById(`spy-timer-${toId}`);if(el)el.textContent=`${rem}s`;
+    if(rem<=0){clearInterval(iv);gfSpyReturned(mission);}
+  },1000);
+}
+function gfSpyReturned(mission){
+  mission.done=true;mission.photo=generateSpyPhoto(mission.fromId,mission.toId);
+  const a=countryName(mission.fromId),b=countryName(mission.toId);
+  addPost('spy','🕵️ SZPIEG',mission.fromId,pick(TEMPLATES.spy)(a,b),mission.photo);
+  gfToast(`📸 Szpieg powrócił z ${b}!`,'purple');
+  renderActions(GF_COUNTRIES.find(c=>c.id===mission.toId));renderSpyGallery();
+}
+function gfPostDiplo(toId){if(!gfPlayerCountry)return;addPost('diplo','📢 DYPLOMACJA',gfPlayerCountry.id,pick(TEMPLATES.diplo)(gfPlayerCountry.name,countryName(toId)));gfToast('📢 Opublikowano.');}
+document.getElementById('gf-post-btn').addEventListener('click',()=>{
+  if(!gfPlayerCountry){gfToast('⚠️ Wybierz kraj na globusie!','red');return;}
+  const inp=document.getElementById('gf-composer-input');const text=inp.value.trim();if(!text)return;
+  addPost('diplo','📢 POST',gfPlayerCountry.id,text);inp.value='';gfToast('✅ Opublikowano!');
+});
+
+function renderTV(){
+  const wrap=document.getElementById('gf-tv-feed');if(!wrap)return;
+  wrap.innerHTML=GF_COUNTRIES.map(c=>{
+    const ch=TV_CHANNELS[c.id]||TV_CHANNELS.default;
+    const evts=gfPosts.filter(p=>p.author===c.name).slice(0,1);
+    const hl=evts.length?evts[0].body.replace(/<[^>]+>/g,'').slice(0,120):pick([`Sytuacja w ${c.name} stabilna.`,`${c.name}: nowe inwestycje w sektorze obronnym.`,`Władze ${c.name} komentują sytuację geopolityczną.`]);
+    return`<div class="tv-post"><div class="tv-header"><div class="tv-logo">${ch.icon}</div><div><div class="tv-channel">${ch.name}</div><div class="tv-ticker">${c.flag} LIVE · ${new Date().toTimeString().slice(0,5)}</div></div></div><div class="tv-headline">${c.flag} ${hl}${hl.length>=120?'…':''}</div></div>`;
+  }).join('');
+}
+function renderSpyGallery(){
+  const wrap=document.getElementById('gf-spy-gallery-wrap');if(!wrap)return;
+  const sp=gfPosts.filter(p=>p.type==='spy'&&p.spyPhoto);
+  if(!sp.length){wrap.innerHTML=`<div style="padding:40px;text-align:center;color:var(--text2);font-size:10px;letter-spacing:2px;">🕵️ Brak zdjęć wywiadowczych.<br><br>Wyślij szpiega aby zdobyć materiały.</div>`;return;}
+  wrap.innerHTML=`<div class="spy-gallery">${sp.map(p=>`<div class="spy-thumb">${p.spyPhoto.svg}<div class="spy-thumb-cap">${p.flag} → ${p.spyPhoto.label}</div></div>`).join('')}</div>`;
+}
+function renderDiplomacy(){
+  const wrap=document.getElementById('gf-diplomacy-wrap');if(!wrap)return;
+  if(!gfPlayerCountry){wrap.innerHTML=`<div style="padding:40px;text-align:center;color:var(--text2);font-size:10px;letter-spacing:2px;">Wybierz kraj na globusie.</div>`;return;}
+  wrap.innerHTML=`<div style="margin-bottom:14px;font-size:8px;font-weight:700;letter-spacing:3px;color:var(--text2);text-transform:uppercase;border-left:2px solid var(--cyan);padding-left:8px;">Stosunki — ${gfPlayerCountry.name}</div>`+
+    GF_COUNTRIES.filter(c=>c.id!==gfPlayerCountry.id).map(c=>{
+      const rel=GF_RELATIONS[gfPlayerCountry.id][c.id];
+      const rc=rel==='ally'?'var(--green)':rel==='war'?'var(--red)':'var(--text2)';
+      const rl=rel==='ally'?'🤝 Sojusznik':rel==='war'?'⚔️ Wróg':'😐 Neutralny';
+      return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px;background:var(--tile);"><span style="font-size:20px">${c.flag}</span><span style="flex:1;font-size:10px;font-weight:700">${c.name}</span><span style="font-size:9px;color:${rc}">${rl}</span><button class="gf-action-btn" style="margin:0;padding:4px 10px;font-size:8px;width:auto" onclick="gfViewCountry('${c.id}')">Profil</button></div>`;
+    }).join('');
+}
+</script>
+
+<script>
+document.querySelectorAll('.gf-nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.gf-nav-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.gf-view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    const view=document.getElementById('view-'+btn.dataset.view);if(view)view.classList.add('active');
+    if(btn.dataset.view==='tv')renderTV();
+    if(btn.dataset.view==='spies')renderSpyGallery();
+    if(btn.dataset.view==='diplomacy')renderDiplomacy();
+  });
+});
+
+function gfViewCountry(id){
+  gfViewingCountry=GF_COUNTRIES.find(c=>c.id===id)||null;
+  renderProfileCard(gfViewingCountry);renderSidebar();
+  document.querySelectorAll('.gf-nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.gf-view').forEach(v=>v.classList.remove('active'));
+  document.querySelector('[data-view="feed"]').classList.add('active');
+  document.getElementById('view-feed').classList.add('active');
+}
+
+let gfToastTimer=null;
+function gfToast(msg,color='cyan'){
+  const el=document.getElementById('gf-toast');
+  el.textContent=msg;
+  el.style.borderColor=color==='red'?'rgba(255,80,80,0.4)':color==='purple'?'rgba(200,128,255,0.4)':'rgba(80,160,255,0.28)';
+  el.classList.add('show');clearTimeout(gfToastTimer);
+  gfToastTimer=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+function gfAutoEvent(){
+  const r=Math.random();
+  if(r<0.25){const c=pick(GF_COUNTRIES);addPost('disaster','🚨 KATASTROFA',c.id,pick(TEMPLATES.disaster)(c.name));}
+  else if(r<0.45){const c=pick(GF_COUNTRIES);addPost('econ','📈 GOSPODARKA',c.id,pick(TEMPLATES.econ)(c.name));}
+  else if(r<0.62){const a=pick(GF_COUNTRIES),b=pick(GF_COUNTRIES.filter(c=>c.id!==a.id));addPost('diplo','🤝 DYPLOMACJA',a.id,pick(TEMPLATES.diplo)(a.name,b.name));}
+  else{
+    const warPairs=Object.entries(GF_RELATIONS).flatMap(([a,rels])=>Object.entries(rels).filter(([,r])=>r==='war').map(([b])=>[a,b]));
+    if(warPairs.length){const[a,b]=pick(warPairs);addPost('war','⚔️ KONFLIKT',a,`Walki między <b>${countryName(a)}</b> a <b>${countryName(b)}</b> trwają.`);}
+    else{const c=pick(GF_COUNTRIES);addPost('econ','📊 RYNEK',c.id,pick(TEMPLATES.econ)(c.name));}
+  }
+}
+
+window.openGlobalFace=function(playerCountryLabel){
+  const c=GF_COUNTRIES.find(c=>c.name===playerCountryLabel||c.name.toLowerCase()===playerCountryLabel?.toLowerCase());
+  gfPlayerCountry=c||null;
+  if(gfPlayerCountry){
+    document.getElementById('gf-player-flag').textContent=gfPlayerCountry.flag;
+    document.getElementById('gf-player-name').textContent=gfPlayerCountry.name;
+    document.getElementById('gf-my-avatar').textContent=gfPlayerCountry.flag;
+    document.getElementById('gf-my-name').textContent=gfPlayerCountry.name;
+    document.getElementById('gf-my-sub').textContent=gfPlayerCountry.leader;
+  }
+  gfViewingCountry=gfPlayerCountry;renderSidebar();if(gfViewingCountry)renderProfileCard(gfViewingCountry);
+};
+window.closeGlobalFace=function(){try{window.parent.postMessage('gf-close','*');}catch(e){}};
+document.getElementById('gf-back').addEventListener('click',closeGlobalFace);
+document.getElementById('gf-my-profile').addEventListener('click',()=>{if(gfPlayerCountry)gfViewCountry(gfPlayerCountry.id);});
+
+// Seed posts
+setTimeout(()=>addPost('ally','🤝 SOJUSZ','usa','<b>USA</b> i <b>Wielka Brytania</b> potwierdzają sojusz na szczycie G7.'),100);
+setTimeout(()=>addPost('war','⚔️ KONFLIKT','ukraina','Siły <b>Ukrainy</b> odpierają atak na wschodniej flance. Mobilizacja ogłoszona.'),400);
+setTimeout(()=>addPost('disaster','🚨 KATASTROFA','japonia','Trzęsienie ziemi 6.1 u wybrzeży <b>Japonii</b>. Ostrzeżenie tsunami odwołane.'),700);
+setTimeout(()=>addPost('econ','📈 GOSPODARKA','chiny','<b>Chiny</b> ogłaszają pakiet stymulacyjny 500 mld $. Hossa na giełdach.'),1000);
+setTimeout(()=>addPost('diplo','🤝 DYPLOMACJA','niemcy','Niemcy wzywają do dialogu między <b>Rosją</b> a <b>Ukrainą</b>.'),1300);
+setTimeout(()=>{renderSidebar();},1500);
+
+setInterval(gfAutoEvent,20000+Math.random()*15000);
+setInterval(refreshFeedTimestamps,30000);
+</script>
 
 <div id="logo">
   <h1>🌍 Data Center <span id="selected-country-name">Kliknij kraj</span></h1>
@@ -692,8 +1161,8 @@ setInterval(()=>{let cps=0;cbPlaced.forEach(p=>cps+=p.def.cps);cbCredits+=cps;do
 function cbReset(){cbPlaced=[];cbSelectedBuild=null;cbSelectedCell=null;cbHoverCell=null;cbCredits=5000;cbEnergy=1200;cbDeselBuild();cbHideSelPanel();document.getElementById('cb-log-lines').innerHTML='';cbUpdateStats();cbAddLog('System zainicjalizowany.','ok');}
 
 // ── GLOBALFACE
-const gfIframeWrap=document.getElementById('gf-iframe-wrap');
-const gfIframe=document.getElementById('gf-iframe');
+
+
 function openGF(){
   gfIframeWrap.classList.add('visible');
   const country=selectedCountryLabel||null;

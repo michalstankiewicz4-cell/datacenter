@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Phone Shake Effect</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 20px 16px;
+      background: #111;
+      border-right: 1px solid #222;
+      min-width: 180px;
+      min-height: 100vh;
+    }
+
+    .panel h3 {
+      margin: 0 0 4px 0;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #555;
+    }
+
+    .panel hr {
+      border: none;
+      border-top: 1px solid #222;
+      margin: 0;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control label {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 120px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #00bcd4;
+      cursor: pointer;
+    }
+
+    .range-slider-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .range-track-outer {
+      position: relative;
+      width: 120px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+    }
+    .range-track-bg {
+      position: absolute;
+      left: 0; right: 0;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+    }
+    .range-track-fill {
+      position: absolute;
+      height: 4px;
+      background: #00bcd4;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    .range-track-outer input[type="range"] {
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      background: transparent;
+      pointer-events: none;
+      -webkit-appearance: none;
+      appearance: none;
+      outline: none;
+    }
+    .range-track-outer input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #00bcd4;
+      cursor: pointer;
+      pointer-events: all;
+      border: 2px solid #0a0a0a;
+    }
+    .range-track-outer input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #00bcd4;
+      cursor: pointer;
+      pointer-events: all;
+      border: 2px solid #0a0a0a;
+    }
+    .range-vals {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .val {
+      font-size: 12px;
+      color: #00bcd4;
+      min-width: 26px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .file-control {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .file-control label {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    input[type="file"] {
+      font-size: 11px;
+      color: #888;
+      max-width: 148px;
+    }
+
+    .gif-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .gif-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gif-row label {
+      font-size: 12px;
+      color: #aaa;
+      white-space: nowrap;
+    }
+
+    input[type="number"] {
+      width: 52px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #fff;
+      font-size: 12px;
+      padding: 3px 6px;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type="number"]:focus { border-color: #00bcd4; }
+
+    .btn-gif {
+      width: 100%;
+      padding: 7px 0;
+      background: #00bcd4;
+      color: #000;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-gif:hover { background: #00e5ff; }
+    .btn-gif:disabled { background: #1a4a50; color: #555; cursor: not-allowed; }
+
+    .gif-status {
+      font-size: 11px;
+      color: #555;
+      min-height: 16px;
+    }
+
+    .gif-progress {
+      width: 100%;
+      height: 3px;
+      background: #222;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .gif-progress-bar {
+      height: 100%;
+      background: #00bcd4;
+      width: 0%;
+      transition: width 0.05s;
+    }
+
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    canvas {
+      max-width: 90%;
+      max-height: 90vh;
+      background: #000;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="panel">
+    <h3>Ustawienia</h3>
+
+    <div class="control">
+      <label>Drżenie X</label>
+      <div class="slider-row">
+        <input type="range" id="shakeX" min="0" max="20" value="4" step="0.1">
+        <span class="val" id="shakeXVal">4.0</span>
+      </div>
+    </div>
+
+    <div class="control">
+      <label>Drżenie Y</label>
+      <div class="slider-row">
+        <input type="range" id="shakeY" min="0" max="20" value="4" step="0.1">
+        <span class="val" id="shakeYVal">4.0</span>
+      </div>
+    </div>
+
+    <div class="control">
+      <label>Rotacja</label>
+      <div class="slider-row">
+        <input type="range" id="rotate" min="0" max="10" value="2" step="0.1">
+        <span class="val" id="rotateVal">2.0°</span>
+      </div>
+    </div>
+
+    <div class="control">
+      <label>Prędkość</label>
+      <div class="range-slider-wrap">
+        <div class="range-track-outer">
+          <div class="range-track-bg"></div>
+          <div class="range-track-fill" id="speedFill"></div>
+          <input type="range" id="speedMin" min="1" max="60" value="10" step="1">
+          <input type="range" id="speedMax" min="1" max="60" value="30" step="1">
+        </div>
+        <div class="range-vals">
+          <span class="val" id="speedMinVal">10</span>
+          <span style="font-size:10px;color:#555">–</span>
+          <span class="val" id="speedMaxVal">30</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="file-control">
+      <label>Wczytaj zdjęcie</label>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <hr>
+
+    <div class="control">
+      <div class="slider-row" style="justify-content:space-between;">
+        <label style="color:#aaa;font-size:12px;">Pixelizacja</label>
+        <input type="checkbox" id="pixelOn">
+      </div>
+      <div class="slider-row">
+        <input type="range" id="pixelSize" min="2" max="32" value="6" step="1">
+        <span class="val" id="pixelSizeVal">6</span>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="gif-section">
+      <h3>Eksport GIF</h3>
+
+      <div class="gif-row">
+        <label>Klatki</label>
+        <input type="number" id="gifFrames" value="20" min="1" max="200">
+      </div>
+
+      <div class="gif-row">
+        <label>Opóź. (ms)</label>
+        <input type="number" id="gifDelay" value="60" min="10" max="1000" step="10">
+      </div>
+
+      <button class="btn-gif" id="btnGif">Nagraj GIF</button>
+      <div class="gif-progress"><div class="gif-progress-bar" id="gifProgressBar"></div></div>
+      <div class="gif-status" id="gifStatus"></div>
+    </div>
+  </div>
+
+  <div class="canvas-area">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script>
+  // ============================================================
+  // Inline GIF encoder — no external dependencies
+  // ============================================================
+
+  function medianCut(rgba, numColors) {
+    const n = rgba.length / 4;
+    const pixels = new Array(n);
+    for (let i = 0; i < n; i++) {
+      pixels[i] = { r: rgba[i*4], g: rgba[i*4+1], b: rgba[i*4+2] };
+    }
+
+    function cutBox(box) {
+      let minR=255,maxR=0,minG=255,maxG=0,minB=255,maxB=0;
+      for (const p of box) {
+        if(p.r<minR)minR=p.r; if(p.r>maxR)maxR=p.r;
+        if(p.g<minG)minG=p.g; if(p.g>maxG)maxG=p.g;
+        if(p.b<minB)minB=p.b; if(p.b>maxB)maxB=p.b;
+      }
+      const rr=maxR-minR, rg=maxG-minG, rb=maxB-minB;
+      const ch = rr>=rg && rr>=rb ? 'r' : rg>=rb ? 'g' : 'b';
+      box.sort((a,b) => a[ch]-b[ch]);
+      const mid = box.length >> 1;
+      return [box.slice(0,mid), box.slice(mid)];
+    }
+
+    let boxes = [pixels];
+    while (boxes.length < numColors) {
+      boxes.sort((a,b) => b.length - a.length);
+      const biggest = boxes.shift();
+      if (biggest.length < 2) { boxes.push(biggest); break; }
+      const [a, b] = cutBox(biggest);
+      boxes.push(a, b);
+    }
+
+    const palette = boxes.map(box => {
+      let sr=0,sg=0,sb=0;
+      for(const p of box){sr+=p.r;sg+=p.g;sb+=p.b;}
+      return {r:Math.round(sr/box.length),g:Math.round(sg/box.length),b:Math.round(sb/box.length)};
+    });
+    while (palette.length < 256) palette.push({r:0,g:0,b:0});
+
+    const nc = Math.min(numColors, boxes.length);
+    const mapped = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      const pr=rgba[i*4],pg=rgba[i*4+1],pb=rgba[i*4+2];
+      let best=0, bestD=Infinity;
+      for (let j=0; j<nc; j++) {
+        const dr=pr-palette[j].r,dg=pg-palette[j].g,db=pb-palette[j].b;
+        const d=dr*dr+dg*dg+db*db;
+        if(d<bestD){bestD=d;best=j;}
+      }
+      mapped[i]=best;
+    }
+    return { palette, pixels: mapped };
+  }
+
+  function lzwEncode(pixels, minCodeSize) {
+    const clearCode = 1 << minCodeSize;
+    const eofCode = clearCode + 1;
+    let codeSize = minCodeSize + 1;
+    let nextCode = eofCode + 1;
+
+    const output = [];
+    let bitBuffer = 0, bitsInBuffer = 0;
+
+    const emit = (code) => {
+      bitBuffer |= (code << bitsInBuffer);
+      bitsInBuffer += codeSize;
+      while (bitsInBuffer >= 8) {
+        output.push(bitBuffer & 0xFF);
+        bitBuffer >>= 8;
+        bitsInBuffer -= 8;
+      }
+    };
+
+    let table;
+    const initTable = () => {
+      table = new Map();
+      for (let i=0; i < clearCode; i++) table.set(i, i);
+      nextCode = eofCode + 1;
+      codeSize = minCodeSize + 1;
+    };
+
+    // Use integer keys: prefix*256+suffix (only valid for minCodeSize=8, palette<=256)
+    // For arbitrary chains, use string keys but prime with integer singles
+    const tableStr = new Map();
+    const initTableStr = () => {
+      tableStr.clear();
+      for (let i=0; i<clearCode; i++) tableStr.set(''+i, i);
+      nextCode = eofCode + 1;
+      codeSize = minCodeSize + 1;
+    };
+
+    initTableStr();
+    emit(clearCode);
+
+    let buffer = ''+pixels[0];
+
+    for (let i=1; i<pixels.length; i++) {
+      const k = pixels[i];
+      const bufK = buffer + ',' + k;
+      if (tableStr.has(bufK)) {
+        buffer = bufK;
+      } else {
+        emit(tableStr.get(buffer));
+        if (nextCode < 4096) {
+          tableStr.set(bufK, nextCode++);
+          if (nextCode > (1 << codeSize) && codeSize < 12) codeSize++;
+        } else {
+          emit(clearCode);
+          initTableStr();
+        }
+        buffer = ''+k;
+      }
+    }
+
+    emit(tableStr.get(buffer));
+    emit(eofCode);
+    if (bitsInBuffer > 0) output.push(bitBuffer & 0xFF);
+    return output;
+  }
+
+  function buildGIF(frames, width, height, delayMs) {
+    const delayCs = Math.round(delayMs / 10);
+    const out = [];
+    const push16 = v => { out.push(v & 0xFF, (v>>8) & 0xFF); };
+    const pushStr = s => { for(let i=0;i<s.length;i++) out.push(s.charCodeAt(i)); };
+
+    // Header
+    pushStr("GIF89a");
+    push16(width);
+    push16(height);
+    // Global color table: use first frame's palette
+    out.push(0xF7, 0x00, 0x00);
+    const gpal = frames[0].palette;
+    for (let i=0; i<256; i++) {
+      const c = gpal[i]; out.push(c.r, c.g, c.b);
+    }
+
+    // Netscape looping extension
+    out.push(0x21, 0xFF, 0x0B);
+    pushStr("NETSCAPE2.0");
+    out.push(0x03, 0x01, 0x00, 0x00, 0x00);
+
+    for (const frame of frames) {
+      // Graphic control extension
+      out.push(0x21, 0xF9, 0x04, 0x00);
+      push16(delayCs);
+      out.push(0x00, 0x00);
+
+      // Image descriptor
+      out.push(0x2C);
+      push16(0); push16(0);
+      push16(width); push16(height);
+      out.push(0x80 | 0x07); // local color table, size=7 (256 entries)
+
+      // Local palette
+      for (let i=0; i<256; i++) {
+        const c = frame.palette[i]; out.push(c.r, c.g, c.b);
+      }
+
+      // LZW data
+      out.push(8); // min code size
+      const lzw = lzwEncode(frame.pixels, 8);
+      for (let i=0; i<lzw.length;) {
+        const bsize = Math.min(255, lzw.length-i);
+        out.push(bsize);
+        for (let j=0; j<bsize; j++) out.push(lzw[i++]);
+      }
+      out.push(0x00);
+    }
+
+    out.push(0x3B);
+    return new Uint8Array(out);
+  }
+
+  // ============================================================
+  // App
+  // ============================================================
+
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const fileInput = document.getElementById("fileInput");
+
+  const shakeXSlider = document.getElementById("shakeX");
+  const shakeYSlider = document.getElementById("shakeY");
+  const rotateSlider = document.getElementById("rotate");
+
+  const shakeXVal = document.getElementById("shakeXVal");
+  const shakeYVal = document.getElementById("shakeYVal");
+  const rotateVal = document.getElementById("rotateVal");
+
+  shakeXSlider.addEventListener("input", () => shakeXVal.textContent = Number(shakeXSlider.value).toFixed(1));
+  shakeYSlider.addEventListener("input", () => shakeYVal.textContent = Number(shakeYSlider.value).toFixed(1));
+  rotateSlider.addEventListener("input", () => rotateVal.textContent = Number(rotateSlider.value).toFixed(1) + "°");
+
+  const speedMinSlider = document.getElementById("speedMin");
+  const speedMaxSlider = document.getElementById("speedMax");
+  const speedMinVal = document.getElementById("speedMinVal");
+  const speedMaxVal = document.getElementById("speedMaxVal");
+  const speedFill = document.getElementById("speedFill");
+
+  function updateSpeedSlider() {
+    let lo = Number(speedMinSlider.value), hi = Number(speedMaxSlider.value);
+    if (lo > hi) [lo, hi] = [hi, lo];
+    speedMinVal.textContent = lo;
+    speedMaxVal.textContent = hi;
+    const pct = v => ((v-1)/59)*100;
+    speedFill.style.left  = pct(lo) + "%";
+    speedFill.style.width = (pct(hi)-pct(lo)) + "%";
+  }
+
+  speedMinSlider.addEventListener("input", updateSpeedSlider);
+  speedMaxSlider.addEventListener("input", updateSpeedSlider);
+  updateSpeedSlider();
+
+  function getRandomSpeed() {
+    let lo = Number(speedMinSlider.value), hi = Number(speedMaxSlider.value);
+    if (lo > hi) [lo, hi] = [hi, lo];
+    return lo + Math.random() * (hi - lo);
+  }
+
+  let img = new Image();
+  let imgLoaded = false;
+
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const newImg = new Image();
+      newImg.onload = () => {
+        img = newImg;
+        imgLoaded = true;
+        resizeCanvas();
+        startAnimation();
+      };
+      newImg.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  window.addEventListener("resize", resizeCanvas);
+
+  function resizeCanvas() {
+    if (!imgLoaded) return;
+    const maxW = window.innerWidth * 0.75;
+    const maxH = window.innerHeight * 0.88;
+    const ratio = img.width / img.height;
+    let w = maxW, h = w / ratio;
+    if (h > maxH) { h = maxH; w = h * ratio; }
+    canvas.width = Math.round(w);
+    canvas.height = Math.round(h);
+  }
+
+  let lastTime = 0, nextInterval = 0, animStarted = false;
+
+  // Start the loop once — it idles until imgLoaded=true
+  startAnimation();
+
+  function startAnimation() {
+    if (animStarted) return;
+    animStarted = true;
+    nextInterval = 1000 / getRandomSpeed();
+    function loop(ts) {
+      if (imgLoaded && ts - lastTime >= nextInterval) {
+        lastTime = ts;
+        nextInterval = 1000 / getRandomSpeed();
+        drawShakeFrame(ctx, canvas.width, canvas.height);
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  }
+
+  const pixelOnCheck   = document.getElementById("pixelOn");
+  const pixelSizeSlider = document.getElementById("pixelSize");
+  const pixelSizeVal    = document.getElementById("pixelSizeVal");
+  pixelSizeSlider.addEventListener("input", () => pixelSizeVal.textContent = pixelSizeSlider.value);
+
+  const pixCanvas = document.createElement("canvas");
+  const pixCtx    = pixCanvas.getContext("2d");
+
+  function drawShakeFrame(cx, cw, ch) {
+    if (!imgLoaded) return;
+    const scale = 1.03;
+    const drawW = cw * scale, drawH = ch * scale;
+    const offsetX = (Math.random()*2-1) * Number(shakeXSlider.value);
+    const offsetY = (Math.random()*2-1) * Number(shakeYSlider.value);
+    const maxAngle = Number(rotateSlider.value) * Math.PI / 180;
+    const angle = (Math.random()*2-1) * maxAngle;
+    const x = (cw-drawW)/2 + offsetX;
+    const y = (ch-drawH)/2 + offsetY;
+
+    cx.clearRect(0, 0, cw, ch);
+    cx.save();
+    cx.translate(cw/2, ch/2);
+    cx.rotate(angle);
+    cx.translate(-cw/2, -ch/2);
+    cx.drawImage(img, x, y, drawW, drawH);
+    cx.restore();
+
+    if (pixelOnCheck.checked) {
+      const pxSize = Number(pixelSizeSlider.value);
+      const pw = Math.max(1, Math.floor(cw / pxSize));
+      const ph = Math.max(1, Math.floor(ch / pxSize));
+      pixCanvas.width  = pw;
+      pixCanvas.height = ph;
+      pixCtx.imageSmoothingEnabled = false;
+      // cx.canvas is the canvas element when cx is its 2d context
+      const srcCanvas = (cx === ctx) ? canvas : cx.canvas;
+      pixCtx.drawImage(srcCanvas, 0, 0, pw, ph);
+      cx.imageSmoothingEnabled = false;
+      cx.clearRect(0, 0, cw, ch);
+      cx.drawImage(pixCanvas, 0, 0, cw, ch);
+      cx.imageSmoothingEnabled = true;
+    }
+  }
+
+  // ---- GIF export ----
+  const btnGif = document.getElementById("btnGif");
+  const gifStatus = document.getElementById("gifStatus");
+  const gifProgressBar = document.getElementById("gifProgressBar");
+
+  btnGif.addEventListener("click", () => {
+    if (!imgLoaded) { gifStatus.textContent = "Najpierw wczytaj zdjęcie."; return; }
+
+    const frameCount = Math.max(1, Math.min(200, Number(document.getElementById("gifFrames").value) || 20));
+    const delayMs = Math.max(10, Number(document.getElementById("gifDelay").value) || 60);
+
+    btnGif.disabled = true;
+    gifProgressBar.style.width = "0%";
+
+    // Render at half resolution
+    const scale = 0.5;
+    const gw = Math.round(canvas.width  * scale);
+    const gh = Math.round(canvas.height * scale);
+
+    const offCanvas = document.createElement("canvas");
+    offCanvas.width  = gw;
+    offCanvas.height = gh;
+    const offCtx = offCanvas.getContext("2d");
+
+    const frames = [];
+
+    // Use setTimeout slices so the browser doesn't freeze on large frame counts
+    let i = 0;
+    function nextFrame() {
+      if (i >= frameCount) {
+        gifStatus.textContent = "Kodowanie GIF…";
+        gifProgressBar.style.width = "50%";
+
+        // Encode synchronously (fast enough for typical sizes)
+        setTimeout(() => {
+          try {
+            const gif = buildGIF(frames, gw, gh, delayMs);
+            const blob = new Blob([gif], { type: "image/gif" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "shake.gif";
+            a.click();
+            gifProgressBar.style.width = "100%";
+            gifStatus.textContent = "Gotowe! (" + (blob.size / 1024).toFixed(0) + " KB)";
+          } catch(e) {
+            gifStatus.textContent = "Błąd: " + e.message;
+          }
+          btnGif.disabled = false;
+        }, 20);
+        return;
+      }
+
+      drawShakeFrame(ctx, canvas.width, canvas.height);
+      offCtx.clearRect(0, 0, gw, gh);
+      offCtx.drawImage(canvas, 0, 0, gw, gh);
+      const imageData = offCtx.getImageData(0, 0, gw, gh);
+      const { palette, pixels } = medianCut(imageData.data, 256);
+      frames.push({ palette, pixels });
+
+      i++;
+      const pct = (i / frameCount * 50).toFixed(0);
+      gifProgressBar.style.width = pct + "%";
+      gifStatus.textContent = "Klatka " + i + " / " + frameCount;
+      setTimeout(nextFrame, 0);
+    }
+
+    nextFrame();
+  });
+  </script>
+
+</body>
+</html>

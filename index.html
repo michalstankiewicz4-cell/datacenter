@@ -407,9 +407,140 @@ body{background:var(--bg);font-family:'Courier New',monospace;color:var(--text);
 #gf-post-btn{padding:5px 14px;border-radius:999px;border:1px solid var(--cyan);background:rgba(60,120,255,0.15);color:var(--cyan);font-size:9px;font-weight:700;letter-spacing:1.5px;cursor:pointer;font-family:'Courier New',monospace;transition:background 0.2s;}
 #gf-post-btn:hover{background:rgba(60,120,255,0.3);}
 
+
+/* ══ INTRO SCREEN ══════════════════════════════ */
+#intro-overlay {
+  position:fixed;inset:0;z-index:500;
+  background:#050a14;
+  display:flex;align-items:center;justify-content:center;
+  animation:introFadeIn 0.6s ease;
+}
+#intro-overlay.hidden {
+  animation:introFadeOut 0.5s ease forwards;
+  pointer-events:none;
+}
+@keyframes introFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes introFadeOut{from{opacity:1}to{opacity:0;display:none}}
+
+#intro-box {
+  width:min(640px,94vw);
+  border:1px solid rgba(80,160,255,0.3);
+  border-radius:20px;
+  background:linear-gradient(160deg,rgba(8,18,44,0.98),rgba(4,10,28,0.98));
+  box-shadow:0 0 60px rgba(40,100,255,0.12);
+  overflow:hidden;
+}
+#intro-header {
+  padding:32px 36px 20px;
+  border-bottom:1px solid rgba(60,120,255,0.15);
+  text-align:center;
+}
+#intro-header h1 {
+  font-size:28px;font-weight:700;letter-spacing:4px;
+  color:#5bf;text-transform:uppercase;margin-bottom:6px;
+}
+#intro-header p {
+  font-size:10px;color:rgba(140,180,240,0.5);letter-spacing:3px;text-transform:uppercase;
+}
+
+#intro-form { padding:28px 36px; }
+
+.intro-field { margin-bottom:20px; }
+.intro-label {
+  display:block;font-size:8px;font-weight:700;letter-spacing:2.5px;
+  text-transform:uppercase;color:rgba(100,160,255,0.6);margin-bottom:8px;
+}
+.intro-input {
+  width:100%;padding:10px 14px;
+  background:rgba(10,20,50,0.6);
+  border:1px solid rgba(80,140,255,0.25);border-radius:10px;
+  color:#c8d8f0;font-family:'Courier New',monospace;font-size:13px;
+  outline:none;transition:border-color 0.2s;
+}
+.intro-input:focus{border-color:rgba(80,160,255,0.6);}
+.intro-input::placeholder{color:rgba(140,180,240,0.3);}
+
+#intro-countries {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  max-height:280px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(60,120,255,0.3) transparent;
+}
+.intro-country-btn {
+  display:flex;align-items:center;gap:8px;padding:9px 12px;
+  border:1px solid rgba(80,140,255,0.2);border-radius:10px;
+  background:rgba(10,20,50,0.4);cursor:pointer;
+  transition:all 0.18s;font-family:'Courier New',monospace;
+  color:#c8d8f0;text-align:left;
+}
+.intro-country-btn:hover{border-color:rgba(80,160,255,0.5);background:rgba(20,44,90,0.6);transform:translateY(-1px);}
+.intro-country-btn.selected{
+  border-color:#5bf;background:rgba(20,60,120,0.7);
+  box-shadow:0 0 12px rgba(80,160,255,0.2);
+}
+.intro-flag{font-size:18px;}
+.intro-cname{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+
+#intro-resources {
+  margin-top:20px;padding:14px 16px;
+  border:1px solid rgba(60,100,200,0.2);border-radius:12px;
+  background:rgba(8,16,40,0.5);
+}
+.intro-res-title{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(100,160,255,0.5);margin-bottom:10px;}
+.intro-res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.intro-res-item{text-align:center;padding:8px 4px;border-radius:8px;background:rgba(12,24,60,0.5);border:1px solid rgba(60,100,200,0.15);}
+.intro-res-icon{font-size:16px;}
+.intro-res-val{font-size:9px;font-weight:700;color:#5bf;margin-top:2px;letter-spacing:0.5px;}
+.intro-res-lbl{font-size:7px;color:rgba(140,180,240,0.45);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+
+#intro-error{color:#ff5050;font-size:9px;letter-spacing:1px;margin-bottom:12px;display:none;}
+
+#intro-start-btn {
+  width:100%;padding:13px;border-radius:12px;
+  border:1px solid rgba(80,200,120,0.4);
+  background:linear-gradient(135deg,rgba(0,80,40,0.6),rgba(0,60,30,0.4));
+  color:#00ff88;font-family:'Courier New',monospace;
+  font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;margin-top:20px;
+}
+#intro-start-btn:hover{background:linear-gradient(135deg,rgba(0,120,60,0.7),rgba(0,80,40,0.5));box-shadow:0 0 20px rgba(0,200,100,0.15);}
+#intro-start-btn:disabled{opacity:0.4;cursor:not-allowed;}
 </style>
 </head>
 <body>
+
+<div id="intro-overlay">
+  <div id="intro-box">
+    <div id="intro-header">
+      <h1>🌍 Global Conflict</h1>
+      <p>World Domination Simulator</p>
+    </div>
+    <div id="intro-form">
+      <div class="intro-field">
+        <label class="intro-label" for="intro-name">Imię i nazwisko Prezydenta</label>
+        <input class="intro-input" id="intro-name" type="text" placeholder="np. Jan Kowalski" maxlength="60" autocomplete="off"/>
+      </div>
+      <div class="intro-field">
+        <label class="intro-label">Wybierz kraj startowy</label>
+        <div id="intro-countries"></div>
+      </div>
+      <div id="intro-resources">
+        <div class="intro-res-title">📦 Zasoby startowe</div>
+        <div class="intro-res-grid">
+          <div class="intro-res-item"><div class="intro-res-icon">💵</div><div class="intro-res-val">100M$</div><div class="intro-res-lbl">Dolar</div></div>
+          <div class="intro-res-item"><div class="intro-res-icon">🥇</div><div class="intro-res-val">5t</div><div class="intro-res-lbl">Złoto</div></div>
+          <div class="intro-res-item"><div class="intro-res-icon">⚙️</div><div class="intro-res-val">100t</div><div class="intro-res-lbl">Żelazo</div></div>
+          <div class="intro-res-item"><div class="intro-res-icon">🔶</div><div class="intro-res-val">50t</div><div class="intro-res-lbl">Miedź</div></div>
+          <div class="intro-res-item"><div class="intro-res-icon">🪨</div><div class="intro-res-val">10t</div><div class="intro-res-lbl">Aluminium</div></div>
+          <div class="intro-res-item"><div class="intro-res-icon">🌾</div><div class="intro-res-val">100t</div><div class="intro-res-lbl">Pszenica</div></div>
+          <div class="intro-res-item"><div class="intro-res-icon">🥩</div><div class="intro-res-val">20t</div><div class="intro-res-lbl">Mięso</div></div>
+          <div class="intro-res-item"><div class="intro-res-icon">🛢️</div><div class="intro-res-val">1000bbl</div><div class="intro-res-lbl">Ropa</div></div>
+        </div>
+      </div>
+      <div id="intro-error">⚠ Wpisz imię i wybierz kraj aby kontynuować.</div>
+      <button id="intro-start-btn" disabled>▶ Rozpocznij grę</button>
+    </div>
+  </div>
+</div>
 
 <button id="gf-open-btn" onclick="openGF()">🌐 GlobalFace</button>
 <div id="gf-overlay">
@@ -1167,6 +1298,119 @@ function cbReset(){cbPlaced=[];cbSelectedBuild=null;cbSelectedCell=null;cbHoverC
 function openGF(){
   window.openGlobalFace(selectedCountryLabel||null);
 }
+
+
+// ══ INTRO SCREEN ══════════════════════════════
+const INTRO_COUNTRIES = [
+  {id:'polska',   name:'Polska',          flag:'🇵🇱'},
+  {id:'usa',      name:'USA',             flag:'🇺🇸'},
+  {id:'niemcy',   name:'Niemcy',          flag:'🇩🇪'},
+  {id:'francja',  name:'Francja',         flag:'🇫🇷'},
+  {id:'rosja',    name:'Rosja',           flag:'🇷🇺'},
+  {id:'chiny',    name:'Chiny',           flag:'🇨🇳'},
+  {id:'uk',       name:'Wielka Brytania', flag:'🇬🇧'},
+  {id:'japonia',  name:'Japonia',         flag:'🇯🇵'},
+  {id:'indie',    name:'Indie',           flag:'🇮🇳'},
+  {id:'brazylia', name:'Brazylia',        flag:'🇧🇷'},
+  {id:'ukraina',  name:'Ukraina',         flag:'🇺🇦'},
+  {id:'turcja',   name:'Turcja',          flag:'🇹🇷'},
+  {id:'izrael',   name:'Izrael',          flag:'🇮🇱'},
+  {id:'iran',     name:'Iran',            flag:'🇮🇷'},
+  {id:'korea_pd', name:'Korea Płd.',      flag:'🇰🇷'},
+];
+
+const PLAYER_RESOURCES = {
+  dollars:100000000, gold:5, iron:100, copper:50,
+  aluminium:10, wheat:100, meat:20, oil:1000
+};
+
+let introSelectedCountry = null;
+let playerData = null;
+
+// Render country grid
+const introGrid = document.getElementById('intro-countries');
+introGrid.innerHTML = INTRO_COUNTRIES.map(c =>
+  `<button class="intro-country-btn" data-id="${c.id}" onclick="introSelectCountry('${c.id}')">
+    <span class="intro-flag">${c.flag}</span>
+    <span class="intro-cname">${c.name}</span>
+  </button>`
+).join('');
+
+function introSelectCountry(id) {
+  introSelectedCountry = INTRO_COUNTRIES.find(c => c.id === id);
+  document.querySelectorAll('.intro-country-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.id === id);
+  });
+  introCheckReady();
+}
+
+const introNameInput = document.getElementById('intro-name');
+introNameInput.addEventListener('input', introCheckReady);
+
+function introCheckReady() {
+  const ready = introNameInput.value.trim().length >= 2 && introSelectedCountry;
+  document.getElementById('intro-start-btn').disabled = !ready;
+  document.getElementById('intro-error').style.display = 'none';
+}
+
+document.getElementById('intro-start-btn').addEventListener('click', () => {
+  const name = introNameInput.value.trim();
+  if (!name || !introSelectedCountry) {
+    document.getElementById('intro-error').style.display = 'block';
+    return;
+  }
+  playerData = {
+    presidentName: name,
+    country: introSelectedCountry,
+    resources: {...PLAYER_RESOURCES},
+    capital: introSelectedCountry.name,
+  };
+  // Store globally
+  window.PLAYER = playerData;
+
+  // Update UI with player country
+  selCountryEl.textContent = introSelectedCountry.name;
+  selectedCountryLabel = introSelectedCountry.name;
+  selectedCountryKey = introSelectedCountry.name.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,' ').trim();
+
+  // Hide intro with fade
+  const overlay = document.getElementById('intro-overlay');
+  overlay.classList.add('hidden');
+  setTimeout(() => overlay.remove(), 500);
+
+  // Fly globe to player's capital
+  const cap = capitals.find(c => c.country === introSelectedCountry.name);
+  if (cap) {
+    globe.controls().autoRotate = false;
+    globe.pointOfView({lat: cap.lat, lng: cap.lng, altitude: 1.8}, 1800);
+    setTimeout(() => { globe.controls().autoRotate = true; }, 3000);
+  }
+
+  // Open country panel
+  openCountryPanel(introSelectedCountry.name);
+  refreshCountryHighlight();
+
+  // Update GlobalFace with player
+  if (window.openGlobalFace) {
+    // pre-set player in GF without opening overlay
+    if (typeof gfPlayerCountry !== 'undefined') {
+      const gfc = (typeof GF_COUNTRIES !== 'undefined' ? GF_COUNTRIES : [])
+        .find(c => c.name === introSelectedCountry.name);
+      if (gfc) {
+        gfPlayerCountry = gfc;
+        document.getElementById('gf-player-flag').textContent = gfc.flag;
+        document.getElementById('gf-player-name').textContent = gfc.name;
+        document.getElementById('gf-my-avatar').textContent = gfc.flag;
+        document.getElementById('gf-my-name').textContent = gfc.name;
+        document.getElementById('gf-my-sub').textContent = `Prezydent ${name}`;
+      }
+    }
+  }
+
+  console.log('Game started:', playerData);
+});
 
 // ── BOOT
 updateLayers();

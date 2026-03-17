@@ -729,6 +729,66 @@ body{background:var(--bg);font-family:'Courier New',monospace;color:var(--text);
   transition:all 0.3s cubic-bezier(0.22,0.61,0.36,1);pointer-events:none;
 }
 #mkt-toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* ── EMBASSY PANEL ── */
+#cp-embassy {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(60,120,220,0.12);
+}
+.cp-emb-title {
+  font-size: 9px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(100,160,255,0.6);
+  margin-bottom: 10px;
+}
+.cp-emb-status {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(12,24,52,0.5);
+  border: 1px solid rgba(60,100,200,0.18);
+  margin-bottom: 8px; font-size: 10px;
+}
+.cp-emb-icon { font-size: 22px; flex-shrink: 0; }
+.cp-emb-info { flex: 1; }
+.cp-emb-label { font-weight: 700; color: #c8d8f0; letter-spacing: 0.5px; }
+.cp-emb-sub { font-size: 8px; color: rgba(140,180,240,0.5); letter-spacing: 1px; margin-top: 2px; }
+.cp-emb-btn {
+  padding: 6px 12px; border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 8px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.cp-emb-btn.build {
+  border: 1px solid rgba(0,255,136,0.35); background: rgba(0,50,25,0.5); color: #00ff88;
+}
+.cp-emb-btn.build:hover { background: rgba(0,80,40,0.7); border-color: rgba(0,255,136,0.6); }
+.cp-emb-btn.remove {
+  border: 1px solid rgba(255,80,80,0.3); background: rgba(50,0,0,0.4); color: #ff7070;
+}
+.cp-emb-btn.remove:hover { background: rgba(80,0,0,0.6); }
+.cp-emb-locked {
+  font-size: 8px; color: rgba(255,200,80,0.6); letter-spacing: 1px;
+  padding: 6px 10px; border-radius: 8px;
+  background: rgba(40,30,0,0.4); border: 1px solid rgba(255,200,80,0.15);
+  display: flex; align-items: center; gap: 6px;
+}
+.cp-emb-shared-res {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+  background: rgba(0,40,20,0.3); border: 1px solid rgba(0,200,100,0.2);
+}
+.cp-emb-shared-title {
+  font-size: 8px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(0,200,100,0.7); margin-bottom:8px;
+}
+.cp-emb-shared-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.cp-emb-shared-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 8px; border-radius: 7px;
+  background: rgba(0,20,10,0.4); border: 1px solid rgba(0,150,80,0.15);
+  font-size: 9px;
+}
+.cp-emb-shared-item span:first-child { font-size: 13px; }
+.cp-emb-shared-val { color: #5bf; font-weight: 700; }
+.cp-emb-shared-lbl { color: rgba(140,180,240,0.5); font-size: 7px; letter-spacing: 1px; text-transform: uppercase; margin-top: 1px; }
 </style>
 </head>
 <body>
@@ -1024,63 +1084,12 @@ function renderActions(c){
   if(!wrap||!gfPlayerCountry||gfPlayerCountry.id===c.id){if(wrap)wrap.innerHTML='';return;}
   const rel=GF_RELATIONS[gfPlayerCountry.id][c.id];
   const spy=GF_SPIES.find(s=>s.fromId===gfPlayerCountry.id&&s.toId===c.id&&!s.done);
-  wrap.innerHTML=`
-    ${rel!=='ally'?`<button class="gf-action-btn success" onclick="gfProposePact('${c.id}')">🤝 Zaproponuj sojusz</button>`:''}
-    ${rel!=='war'?`<button class="gf-action-btn danger" onclick="gfDeclareWar('${c.id}')">⚔️ Wypowiedz wojnę</button>`:''}
-    ${rel==='war'?`<button class="gf-action-btn success" onclick="gfPeace('${c.id}')">🕊️ Zaproponuj pokój</button>`:''}
-    ${!spy?`<button class="gf-action-btn" onclick="gfSendSpy('${c.id}')">🕵️ Wyślij szpiega</button>`:`<div class="gf-spy-status"><b>🕵️ Szpieg w drodze</b><br>Misja w ${c.name} — <span id="spy-timer-${c.id}">…</span></div>`}
-    <button class="gf-action-btn" onclick="gfPostDiplo('${c.id}')">📢 Komunikat dyplomatyczny</button>`;
-}
-</script>
-
-<script>
-function renderSidebar(){
-  const list=document.getElementById('gf-country-list');if(!list)return;
-  list.innerHTML=GF_COUNTRIES.map(c=>{
-    const rel=gfPlayerCountry?GF_RELATIONS[gfPlayerCountry.id]?.[c.id]:'neutral';
-    const isPlayer=gfPlayerCountry?.id===c.id;
-    const dotClass=isPlayer?'dot-player':rel==='ally'?'dot-ally':rel==='war'?'dot-war':'dot-neutral';
-    const active=gfViewingCountry?.id===c.id?'active':'';
-    return`<div class="gf-country-item ${active}" onclick="gfViewCountry('${c.id}')"><span class="gf-ci-flag">${c.flag}</span><span class="gf-ci-name">${c.name}</span><span class="gf-ci-dot ${dotClass}"></span></div>`;
-  }).join('');
-  const trending=document.getElementById('gf-trending');
-  if(trending)trending.innerHTML=['#Dyplomacja','#Szpiegostwo','#BreakingNews','#Sojusz','#Konflikt','#Gospodarka'].map(t=>`<div class="gf-country-item" style="font-size:9px;color:var(--cyan)">${t}</div>`).join('');
-}
-
-function renderProfileCard(c){
-  if(!c)return;
-  const rel=gfPlayerCountry&&gfPlayerCountry.id!==c.id?GF_RELATIONS[gfPlayerCountry.id]?.[c.id]:null;
-  const relBadge=rel?`<span class="gf-rel-badge" style="background:${rel==='ally'?'rgba(0,255,136,0.15)':rel==='war'?'rgba(255,80,80,0.15)':'rgba(140,180,240,0.1)'};color:${rel==='ally'?'var(--green)':rel==='war'?'var(--red)':'var(--text2)'};border:1px solid ${rel==='ally'?'rgba(0,255,136,0.3)':rel==='war'?'rgba(255,80,80,0.3)':'var(--border)'};">${rel==='ally'?'🤝 SOJUSZNIK':rel==='war'?'⚔️ WRÓG':'😐 NEUTRALNY'}</span>`:'';
-  document.getElementById('gf-profile-card-wrap').innerHTML=`
-    <div class="gf-profile-card">
-      <div class="gf-profile-banner">${c.flag}</div>
-      <div class="gf-profile-body">
-        <div class="gf-profile-flag">${c.flag}</div>
-        <div class="gf-profile-cname">${c.name}</div>
-        <div class="gf-profile-leader">👤 ${c.leader}</div>
-        <div class="gf-relations">${relBadge}</div>
-        <div class="gf-profile-bio">${c.bio}</div>
-        <div class="gf-profile-stats">
-          <div class="gf-pstat"><div class="gf-pstat-val">${Math.floor(Math.random()*500+50)}M</div><div class="gf-pstat-lbl">Pop</div></div>
-          <div class="gf-pstat"><div class="gf-pstat-val">${Math.floor(Math.random()*900+100)}B$</div><div class="gf-pstat-lbl">PKB</div></div>
-          <div class="gf-pstat"><div class="gf-pstat-val">${Math.floor(Math.random()*90+10)}</div><div class="gf-pstat-lbl">Siła</div></div>
-        </div>
-      </div>
-    </div>`;
-  renderActions(c);
-}
-
-function renderActions(c){
-  const wrap=document.getElementById('gf-action-wrap');
-  if(!wrap||!gfPlayerCountry||gfPlayerCountry.id===c.id){if(wrap)wrap.innerHTML='';return;}
-  const rel=GF_RELATIONS[gfPlayerCountry.id][c.id];
-  const spy=GF_SPIES.find(s=>s.fromId===gfPlayerCountry.id&&s.toId===c.id&&!s.done);
-  wrap.innerHTML=`
-    ${rel!=='ally'?`<button class="gf-action-btn success" onclick="gfProposePact('${c.id}')">🤝 Zaproponuj sojusz</button>`:''}
-    ${rel!=='war'?`<button class="gf-action-btn danger" onclick="gfDeclareWar('${c.id}')">⚔️ Wypowiedz wojnę</button>`:''}
-    ${rel==='war'?`<button class="gf-action-btn success" onclick="gfPeace('${c.id}')">🕊️ Zaproponuj pokój</button>`:''}
+  wrap.innerHTML=`${(typeof embCanDiplomacy==='function'&&!embCanDiplomacy(c.name))?'<div style="padding:8px 10px;border-radius:8px;background:rgba(40,30,0,0.4);border:1px solid rgba(255,200,80,0.2);color:rgba(255,200,80,0.6);font-size:8px;letter-spacing:1px;margin-bottom:6px">🔒 Zbuduj wzajemne ambasady aby odblokować dyplomację</div>':''}
+    ${(typeof embCanDiplomacy!=='function'||embCanDiplomacy(c.name))&&rel!=='ally'?`<button class="gf-action-btn success" onclick="gfProposePact('${c.id}')">🤝 Zaproponuj sojusz</button>`:''}
+    ${(typeof embCanDiplomacy!=='function'||embCanDiplomacy(c.name))&&rel!=='war'?`<button class="gf-action-btn danger" onclick="gfDeclareWar('${c.id}')">⚔️ Wypowiedz wojnę</button>`:''}
+    ${(typeof embCanDiplomacy!=='function'||embCanDiplomacy(c.name))&&rel==='war'?`<button class="gf-action-btn success" onclick="gfPeace('${c.id}')">🕊️ Zaproponuj pokój</button>`:''}
     ${!spy?`<button class="gf-action-btn" onclick="gfSendSpy('${c.id}')">🕵️ Wyślij szpiega</button>`:`<div class="gf-spy-status"><b>🕵️ Szpieg w drodze</b><br>Misja: ${c.name} — za: <span id="spy-timer-${c.id}">…</span></div>`}
-    <button class="gf-action-btn" onclick="gfPostDiplo('${c.id}')">📢 Komunikat</button>`;
+    ${(typeof embCanDiplomacy!=='function'||embCanDiplomacy(c.name))?`<button class="gf-action-btn" onclick="gfPostDiplo('${c.id}')">📢 Komunikat</button>`:''}`;
 }
 </script>
 
@@ -1284,6 +1293,7 @@ setInterval(refreshFeedTimestamps,30000);
     <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-nuclear">0</div><div class="cp-stat-lbl">Reaktory</div></div>
     <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-satellites">0</div><div class="cp-stat-lbl">Satelity</div></div>
   </div>
+  <div id="cp-embassy" style="display:none"></div>
   <div id="cp-resources" style="display:none"></div>
   <div id="cp-details"></div>
 </div>
@@ -1566,7 +1576,7 @@ html+=buildSection('🌊 FLOTA',pts.filter(p=>p.type==='naval'),p=>`<div class="
 html+=buildSection('☢️ REAKTORY',pts.filter(p=>p.type==='nuclear'),p=>`<div class="cp-item"><span class="cp-item-icon">☢️</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-nuclear">${p.status==='active'?'ONLINE':'OFFLINE'} ${p.mw}MW</span></div>`);
 html+=buildSection('🛰️ SATELITY',pts.filter(p=>p.type==='satellite'),p=>`<div class="cp-item"><span class="cp-item-icon">🛰️</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-orbit">${p.orbit}</span></div>`);
 if(!html)html='<div class="cp-section"><p class="cp-empty">Brak danych.</p></div>';
-cpDetails.innerHTML=html;renderResourcesPanel();cpPanel.classList.add('visible');}
+cpDetails.innerHTML=html;renderResourcesPanel();renderEmbassyPanel(label);cpPanel.classList.add('visible');}
 function closeCountryPanel(){cpPanel.classList.remove('visible');}
 cpClose.addEventListener('click',()=>{closeCountryPanel();selectedCountryKey='';selectedCountryLabel='';selCountryEl.textContent='Kliknij kraj';refreshCountryHighlight();});
 function refreshCountryHighlight(){globe.polygonsData(countryFeatures);}
@@ -2042,6 +2052,174 @@ function mktToast(msg){
   el.textContent = msg; el.classList.add('show');
   clearTimeout(mktToastTimer);
   mktToastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+
+// ══ EMBASSY SYSTEM ═════════════════════════════════
+// embassies[countryName] = {theyBuildHere: bool, weBuildThere: bool}
+const EMBASSIES = {};
+
+// AI countries that start with embassies among themselves
+['Niemcy','USA','Francja','Wielka Brytania','Japonia'].forEach(a => {
+  ['Niemcy','USA','Francja','Wielka Brytania','Japonia'].forEach(b => {
+    if(a !== b) {
+      if(!EMBASSIES[a]) EMBASSIES[a] = {};
+      EMBASSIES[a][b] = true;
+    }
+  });
+});
+
+// AI resource pools (shown when embassy established)
+const AI_RESOURCES = {
+  'Niemcy':          {dollars:180e6, gold:8,  iron:240, copper:60,  aluminium:30, wheat:80,  meat:25, oil:600},
+  'USA':             {dollars:500e6, gold:30, iron:180, copper:90,  aluminium:80, wheat:300, meat:120,oil:8000},
+  'Francja':         {dollars:200e6, gold:15, iron:160, copper:40,  aluminium:20, wheat:200, meat:60, oil:400},
+  'Wielka Brytania': {dollars:220e6, gold:12, iron:120, copper:35,  aluminium:18, wheat:90,  meat:40, oil:1200},
+  'Japonia':         {dollars:350e6, gold:20, iron:300, copper:100, aluminium:90, wheat:40,  meat:30, oil:200},
+  'Chiny':           {dollars:800e6, gold:25, iron:800, copper:200, aluminium:150,wheat:500, meat:200,oil:3000},
+  'Rosja':           {dollars:150e6, gold:40, iron:500, copper:80,  aluminium:60, wheat:400, meat:80, oil:12000},
+  'Indie':           {dollars:120e6, gold:18, iron:200, copper:50,  aluminium:40, wheat:600, meat:150,oil:800},
+  'Brazylia':        {dollars:90e6,  gold:6,  iron:300, copper:70,  aluminium:55, wheat:250, meat:300,oil:1500},
+  'Ukraina':         {dollars:30e6,  gold:3,  iron:180, copper:20,  aluminium:10, wheat:350, meat:60, oil:200},
+  'Turcja':          {dollars:80e6,  gold:10, iron:100, copper:45,  aluminium:25, wheat:120, meat:50, oil:500},
+  'Izrael':          {dollars:160e6, gold:5,  iron:80,  copper:30,  aluminium:20, wheat:30,  meat:20, oil:100},
+  'Iran':            {dollars:40e6,  gold:8,  iron:120, copper:35,  aluminium:15, wheat:80,  meat:40, oil:9000},
+  'Korea Płd.':      {dollars:280e6, gold:14, iron:200, copper:80,  aluminium:70, wheat:25,  meat:35, oil:300},
+};
+
+const MKT_RES_LIST = [
+  {id:'dollars',   name:'Dolar',     icon:'💵', unit:'USD'},
+  {id:'gold',      name:'Złoto',     icon:'🥇', unit:'t'},
+  {id:'iron',      name:'Żelazo',    icon:'⚙️', unit:'t'},
+  {id:'copper',    name:'Miedź',     icon:'🔶', unit:'t'},
+  {id:'aluminium', name:'Aluminium', icon:'🪨', unit:'t'},
+  {id:'wheat',     name:'Pszenica',  icon:'🌾', unit:'t'},
+  {id:'meat',      name:'Mięso',     icon:'🥩', unit:'t'},
+  {id:'oil',       name:'Ropa',      icon:'🛢️', unit:'bbl'},
+];
+
+function embFmtVal(id, val) {
+  if(id === 'dollars') return val >= 1e6 ? (val/1e6).toFixed(0)+'M$' : val.toLocaleString()+'$';
+  return val + (id === 'oil' ? ' bbl' : ' t');
+}
+
+function embHasOurs(countryName) {
+  // We built an embassy in their country
+  return EMBASSIES[window.PLAYER?.country?.name]?.[countryName] === true;
+}
+function embHasTheirs(countryName) {
+  // They built an embassy in our country
+  return EMBASSIES[countryName]?.[window.PLAYER?.country?.name] === true;
+}
+function embIsMutual(countryName) {
+  return embHasOurs(countryName) && embHasTheirs(countryName);
+}
+function embCanDiplomacy(countryName) {
+  return embIsMutual(countryName);
+}
+
+function embBuild(countryName) {
+  if (!window.PLAYER) return;
+  const myName = window.PLAYER.country.name;
+  if (!EMBASSIES[myName]) EMBASSIES[myName] = {};
+  EMBASSIES[myName][countryName] = true;
+  // AI reciprocates 60% of the time immediately
+  if (Math.random() < 0.6) {
+    if (!EMBASSIES[countryName]) EMBASSIES[countryName] = {};
+    EMBASSIES[countryName][myName] = true;
+  }
+  renderEmbassyPanel(countryName);
+  renderResourcesPanel();
+  cpPanel.classList.add('visible');
+}
+
+function embRemove(countryName) {
+  if (!window.PLAYER) return;
+  const myName = window.PLAYER.country.name;
+  if (EMBASSIES[myName]) delete EMBASSIES[myName][countryName];
+  renderEmbassyPanel(countryName);
+  renderResourcesPanel();
+}
+
+function renderEmbassyPanel(label) {
+  const panel = document.getElementById('cp-embassy');
+  if (!panel) return;
+
+  const isOwnCountry = window.PLAYER?.country?.name === label;
+  if (!window.PLAYER || isOwnCountry) { panel.style.display = 'none'; return; }
+
+  panel.style.display = 'block';
+  const weBuilt    = embHasOurs(label);
+  const theyBuilt  = embHasTheirs(label);
+  const mutual     = weBuilt && theyBuilt;
+  const theirRes   = AI_RESOURCES[label];
+  const safe       = label.replace(/'/g, "\\'");
+
+  let weRow = '';
+  if (weBuilt) {
+    weRow = `<div class="cp-emb-status">
+      <span class="cp-emb-icon">🏛️</span>
+      <div class="cp-emb-info">
+        <div class="cp-emb-label">Twoja ambasada w ${label}</div>
+        <div class="cp-emb-sub">Udostępniasz swoje zasoby temu krajowi</div>
+      </div>
+      <button class="cp-emb-btn remove" onclick="embRemove('${safe}')">✕ Zamknij</button>
+    </div>`;
+  } else {
+    weRow = `<div class="cp-emb-status">
+      <span class="cp-emb-icon">🏗️</span>
+      <div class="cp-emb-info">
+        <div class="cp-emb-label">Brak ambasady w ${label}</div>
+        <div class="cp-emb-sub">Zbuduj aby udostępnić swoje zasoby</div>
+      </div>
+      <button class="cp-emb-btn build" onclick="embBuild('${safe}')">+ Buduj</button>
+    </div>`;
+  }
+
+  let theirRow = '';
+  if (theyBuilt) {
+    theirRow = `<div class="cp-emb-status">
+      <span class="cp-emb-icon">🏛️</span>
+      <div class="cp-emb-info">
+        <div class="cp-emb-label">Ambasada ${label} u Ciebie</div>
+        <div class="cp-emb-sub">Mają dostęp do Twoich zasobów</div>
+      </div>
+    </div>`;
+  } else {
+    theirRow = `<div class="cp-emb-status">
+      <span class="cp-emb-icon">⏳</span>
+      <div class="cp-emb-info">
+        <div class="cp-emb-label">${label} nie ma ambasady u Ciebie</div>
+        <div class="cp-emb-sub">Oczekiwanie na wzajemność</div>
+      </div>
+    </div>`;
+  }
+
+  let sharedRes = '';
+  if (weBuilt && theirRes) {
+    const items = MKT_RES_LIST.map(r =>
+      `<div class="cp-emb-shared-item">
+        <span>${r.icon}</span>
+        <div><div class="cp-emb-shared-val">${embFmtVal(r.id, theirRes[r.id] ?? 0)}</div>
+        <div class="cp-emb-shared-lbl">${r.name}</div></div>
+      </div>`
+    ).join('');
+    sharedRes = `<div class="cp-emb-shared-res">
+      <div class="cp-emb-shared-title">📊 Zasoby ${label} (widoczne przez ambasadę)</div>
+      <div class="cp-emb-shared-grid">${items}</div>
+    </div>`;
+  } else if (!weBuilt) {
+    sharedRes = `<div class="cp-emb-locked">🔒 Zbuduj ambasadę aby zobaczyć zasoby tego kraju</div>`;
+  }
+
+  let diploNote = '';
+  if (!mutual) {
+    diploNote = `<div class="cp-emb-locked" style="margin-top:8px">🤝 Dyplomacja odblokuje się gdy obie strony zbudują ambasady</div>`;
+  }
+
+  panel.innerHTML = `
+    <div class="cp-emb-title">🏛️ Ambasady</div>
+    ${weRow}${theirRow}${sharedRes}${diploNote}`;
 }
 
 // ── BOOT

@@ -480,14 +480,7 @@ body{background:var(--bg);font-family:'Courier New',monospace;color:var(--text);
 .intro-flag{font-size:18px;}
 .intro-cname{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
 
-#intro-resources {
-  margin-top:20px;padding:14px 16px;
-  border:1px solid rgba(60,100,200,0.2);border-radius:12px;
-  background:rgba(8,16,40,0.5);
-}
-.intro-res-title{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(100,160,255,0.5);margin-bottom:10px;}
-.intro-res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
-.intro-res-item{text-align:center;padding:8px 4px;border-radius:8px;background:rgba(12,24,60,0.5);border:1px solid rgba(60,100,200,0.15);}
+
 .intro-res-icon{font-size:16px;}
 .intro-res-val{font-size:9px;font-weight:700;color:#5bf;margin-top:2px;letter-spacing:0.5px;}
 .intro-res-lbl{font-size:7px;color:rgba(140,180,240,0.45);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
@@ -504,6 +497,39 @@ body{background:var(--bg);font-family:'Courier New',monospace;color:var(--text);
 }
 #intro-start-btn:hover{background:linear-gradient(135deg,rgba(0,120,60,0.7),rgba(0,80,40,0.5));box-shadow:0 0 20px rgba(0,200,100,0.15);}
 #intro-start-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* ── RESOURCES PANEL ── */
+#cp-resources {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(60,120,220,0.12);
+}
+.cp-res-title {
+  font-size: 9px; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(100,160,255,0.6);
+  margin-bottom: 10px;
+}
+.cp-res-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.cp-res-card {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 10px;
+  background: rgba(12,24,52,0.5);
+  border: 1px solid rgba(60,100,200,0.18);
+  transition: border-color 0.2s;
+}
+.cp-res-card:hover { border-color: rgba(80,140,255,0.35); }
+.cp-res-icon { font-size: 16px; flex-shrink: 0; }
+.cp-res-body { flex: 1; min-width: 0; }
+.cp-res-val {
+  font-size: 11px; font-weight: 700; color: #5bf;
+  letter-spacing: 0.5px; white-space: nowrap;
+}
+.cp-res-lbl {
+  font-size: 7px; color: rgba(140,180,240,0.5);
+  letter-spacing: 1.5px; text-transform: uppercase; margin-top: 1px;
+}
 </style>
 </head>
 <body>
@@ -523,19 +549,7 @@ body{background:var(--bg);font-family:'Courier New',monospace;color:var(--text);
         <label class="intro-label">Wybierz kraj startowy</label>
         <div id="intro-countries"></div>
       </div>
-      <div id="intro-resources">
-        <div class="intro-res-title">📦 Zasoby startowe</div>
-        <div class="intro-res-grid">
-          <div class="intro-res-item"><div class="intro-res-icon">💵</div><div class="intro-res-val">100M$</div><div class="intro-res-lbl">Dolar</div></div>
-          <div class="intro-res-item"><div class="intro-res-icon">🥇</div><div class="intro-res-val">5t</div><div class="intro-res-lbl">Złoto</div></div>
-          <div class="intro-res-item"><div class="intro-res-icon">⚙️</div><div class="intro-res-val">100t</div><div class="intro-res-lbl">Żelazo</div></div>
-          <div class="intro-res-item"><div class="intro-res-icon">🔶</div><div class="intro-res-val">50t</div><div class="intro-res-lbl">Miedź</div></div>
-          <div class="intro-res-item"><div class="intro-res-icon">🪨</div><div class="intro-res-val">10t</div><div class="intro-res-lbl">Aluminium</div></div>
-          <div class="intro-res-item"><div class="intro-res-icon">🌾</div><div class="intro-res-val">100t</div><div class="intro-res-lbl">Pszenica</div></div>
-          <div class="intro-res-item"><div class="intro-res-icon">🥩</div><div class="intro-res-val">20t</div><div class="intro-res-lbl">Mięso</div></div>
-          <div class="intro-res-item"><div class="intro-res-icon">🛢️</div><div class="intro-res-val">1000bbl</div><div class="intro-res-lbl">Ropa</div></div>
-        </div>
-      </div>
+
       <div id="intro-error">⚠ Wpisz imię i wybierz kraj aby kontynuować.</div>
       <button id="intro-start-btn" disabled>▶ Rozpocznij grę</button>
     </div>
@@ -967,6 +981,7 @@ setInterval(refreshFeedTimestamps,30000);
     <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-nuclear">0</div><div class="cp-stat-lbl">Reaktory</div></div>
     <div class="cp-stat-card"><div class="cp-stat-val" id="cp-s-satellites">0</div><div class="cp-stat-lbl">Satelity</div></div>
   </div>
+  <div id="cp-resources" style="display:none"></div>
   <div id="cp-details"></div>
 </div>
 
@@ -1248,7 +1263,7 @@ html+=buildSection('🌊 FLOTA',pts.filter(p=>p.type==='naval'),p=>`<div class="
 html+=buildSection('☢️ REAKTORY',pts.filter(p=>p.type==='nuclear'),p=>`<div class="cp-item"><span class="cp-item-icon">☢️</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-nuclear">${p.status==='active'?'ONLINE':'OFFLINE'} ${p.mw}MW</span></div>`);
 html+=buildSection('🛰️ SATELITY',pts.filter(p=>p.type==='satellite'),p=>`<div class="cp-item"><span class="cp-item-icon">🛰️</span><span class="cp-item-name">${p.name}</span><span class="cp-item-tag tag-orbit">${p.orbit}</span></div>`);
 if(!html)html='<div class="cp-section"><p class="cp-empty">Brak danych.</p></div>';
-cpDetails.innerHTML=html;cpPanel.classList.add('visible');}
+cpDetails.innerHTML=html;renderResourcesPanel();cpPanel.classList.add('visible');}
 function closeCountryPanel(){cpPanel.classList.remove('visible');}
 cpClose.addEventListener('click',()=>{closeCountryPanel();selectedCountryKey='';selectedCountryLabel='';selCountryEl.textContent='Kliknij kraj';refreshCountryHighlight();});
 function refreshCountryHighlight(){globe.polygonsData(countryFeatures);}
@@ -1411,6 +1426,36 @@ document.getElementById('intro-start-btn').addEventListener('click', () => {
 
   console.log('Game started:', playerData);
 });
+
+
+// ── RESOURCES PANEL
+function renderResourcesPanel() {
+  const panel = document.getElementById('cp-resources');
+  if (!panel || !window.PLAYER) { if(panel) panel.style.display='none'; return; }
+  const r = window.PLAYER.resources;
+  panel.style.display = 'block';
+  panel.innerHTML = `
+    <div class="cp-res-title">📦 Zasoby</div>
+    <div class="cp-res-grid">
+      <div class="cp-res-card"><span class="cp-res-icon">💵</span><div class="cp-res-body"><div class="cp-res-val" id="res-dollars">${formatRes(r.dollars,'$')}</div><div class="cp-res-lbl">Dolar</div></div></div>
+      <div class="cp-res-card"><span class="cp-res-icon">🥇</span><div class="cp-res-body"><div class="cp-res-val" id="res-gold">${formatRes(r.gold,'t')}</div><div class="cp-res-lbl">Złoto</div></div></div>
+      <div class="cp-res-card"><span class="cp-res-icon">⚙️</span><div class="cp-res-body"><div class="cp-res-val" id="res-iron">${formatRes(r.iron,'t')}</div><div class="cp-res-lbl">Żelazo</div></div></div>
+      <div class="cp-res-card"><span class="cp-res-icon">🔶</span><div class="cp-res-body"><div class="cp-res-val" id="res-copper">${formatRes(r.copper,'t')}</div><div class="cp-res-lbl">Miedź</div></div></div>
+      <div class="cp-res-card"><span class="cp-res-icon">🪨</span><div class="cp-res-body"><div class="cp-res-val" id="res-aluminium">${formatRes(r.aluminium,'t')}</div><div class="cp-res-lbl">Aluminium</div></div></div>
+      <div class="cp-res-card"><span class="cp-res-icon">🌾</span><div class="cp-res-body"><div class="cp-res-val" id="res-wheat">${formatRes(r.wheat,'t')}</div><div class="cp-res-lbl">Pszenica</div></div></div>
+      <div class="cp-res-card"><span class="cp-res-icon">🥩</span><div class="cp-res-body"><div class="cp-res-val" id="res-meat">${formatRes(r.meat,'t')}</div><div class="cp-res-lbl">Mięso</div></div></div>
+      <div class="cp-res-card"><span class="cp-res-icon">🛢️</span><div class="cp-res-body"><div class="cp-res-val" id="res-oil">${formatRes(r.oil,'bbl')}</div><div class="cp-res-lbl">Ropa</div></div></div>
+    </div>`;
+}
+
+function formatRes(val, unit) {
+  if (unit === '$') {
+    if (val >= 1e9) return (val/1e9).toFixed(1) + 'B$';
+    if (val >= 1e6) return (val/1e6).toFixed(1) + 'M$';
+    return val.toLocaleString() + '$';
+  }
+  return val + ' ' + unit;
+}
 
 // ── BOOT
 updateLayers();

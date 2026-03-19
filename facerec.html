@@ -44,11 +44,13 @@
     <label><input type="checkbox" class="layer" data-layer="all" checked> Wszystkie punkty</label><br><br>
 
     <label><input type="checkbox" class="layer" data-layer="eyes" checked> Oczy</label><br>
+    <label><input type="checkbox" class="layer" data-layer="pupils" checked> Źrenice</label><br>
     <label><input type="checkbox" class="layer" data-layer="eyebrows" checked> Brwi</label><br>
     <label><input type="checkbox" class="layer" data-layer="nose" checked> Nos</label><br>
     <label><input type="checkbox" class="layer" data-layer="mouth" checked> Usta</label><br>
     <label><input type="checkbox" class="layer" data-layer="jaw" checked> Żuchwa</label><br>
     <label><input type="checkbox" class="layer" data-layer="temples" checked> Skronie</label><br>
+    <label><input type="checkbox" class="layer" data-layer="ears" checked> Uszy</label><br>
   </div>
 
   <div>
@@ -70,11 +72,13 @@
 
   const groups = {
     eyes: [33, 133, 362, 263, 159, 145, 386, 374],
-    eyebrows: [70, 63, 105, 107, 336, 296, 334, 300],
+    pupils: [468, 473],
+    eyebrows: [124, 46, 53, 52, 65, 55, 353, 282, 283, 276, 285, 295],
     nose: [1, 2, 98, 327, 168],
     mouth: [13, 14, 78, 308, 87, 317],
     jaw: [152, 172, 136, 150, 176, 148, 152],
-    temples: [127, 356]
+    temples: [127, 356],
+    ears: [127, 234, 93, 132, 356, 454, 323, 361]
   };
 
   const mesh = new FaceMesh({

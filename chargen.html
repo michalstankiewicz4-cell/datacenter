@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Generator Postaci</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -240,11 +243,38 @@ canvas{
   text-transform:uppercase;transition:all 0.12s;display:none;
 }
 .regen-sketch-btn:hover{border-color:var(--acc);color:var(--acc)}
+
+.mode-tabs{display:flex;gap:6px;margin-bottom:10px}
+.mode-tab{
+  cursor:pointer;border:1px solid var(--border2);padding:4px 8px;
+  font-family:var(--mono);font-size:9px;letter-spacing:0.1em;
+  color:var(--muted);background:transparent;text-transform:uppercase;
+  transition:all 0.12s;user-select:none;flex:1;text-align:center;
+}
+.mode-tab:hover{border-color:var(--acc);color:var(--text)}
+.mode-tab.active{border-color:var(--acc);color:var(--acc);background:rgba(0,245,200,0.06)}
+
+#model-controls{display:none}
+.model-help{font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:0.08em;line-height:1.5}
+.model-layers{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px}
+.model-layers label{font-family:var(--mono);font-size:9px;color:var(--muted);display:flex;gap:5px;align-items:center}
+.model-input{width:100%;background:var(--bg);border:1px solid var(--border2);padding:5px 7px;color:var(--text);font-family:var(--mono);font-size:10px;outline:none}
+.model-input:focus{border-color:var(--acc)}
+.model-btn{border:1px solid var(--border2);padding:4px 8px;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;cursor:pointer;background:transparent;color:var(--muted);text-transform:uppercase;transition:all 0.12s}
+.model-btn:hover{border-color:var(--acc);color:var(--acc)}
+.model-row{display:flex;gap:6px;align-items:center}
+.model-preview{width:100%;height:160px;border:1px solid var(--border2);background:#060606;display:block;cursor:crosshair}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="panel">
+    <div class="mode-tabs">
+      <div class="mode-tab active" data-mode="chargen">Generator</div>
+      <div class="mode-tab" data-mode="model">Wzorzec</div>
+    </div>
+
+    <div id="chargen-controls">
     <div class="sec-label">płeć</div>
     <div class="row">
       <div class="opt active" data-group="gender" data-val="f">kobieta</div>
@@ -351,6 +381,58 @@ canvas{
       <input class="seed-input" id="seed-input" type="text" value="42" maxlength="8">
       <button class="seed-btn" id="rand-btn">RND</button>
       <button class="seed-btn" id="apply-seed">OK</button>
+    </div>
+    </div>
+
+    <div id="model-controls">
+      <div class="sec-label">wzorzec twarzy</div>
+      <div class="model-help">Wczytaj zdjęcie, wybierz warstwy punktów i kliknij "Zastosuj wzorzec", aby wygenerować model twarzy.</div>
+      <div class="divider"></div>
+
+      <div class="sec-label">obraz</div>
+      <input class="model-input" id="mdl-upload" type="file" accept="image/*">
+      <canvas id="mdl-preview" class="model-preview" width="220" height="160"></canvas>
+
+      <div class="sec-label">warstwy punktów</div>
+      <div class="model-layers">
+        <label><input type="checkbox" class="model-layer" data-layer="all" checked> wszystkie</label>
+        <label><input type="checkbox" class="model-layer" data-layer="eyes" checked> oczy</label>
+        <label><input type="checkbox" class="model-layer" data-layer="pupils" checked> źrenice</label>
+        <label><input type="checkbox" class="model-layer" data-layer="eyebrows" checked> brwi</label>
+        <label><input type="checkbox" class="model-layer" data-layer="nose" checked> nos</label>
+        <label><input type="checkbox" class="model-layer" data-layer="mouth" checked> usta</label>
+        <label><input type="checkbox" class="model-layer" data-layer="jaw" checked> żuchwa</label>
+        <label><input type="checkbox" class="model-layer" data-layer="temples" checked> skronie</label>
+        <label><input type="checkbox" class="model-layer" data-layer="ears" checked> uszy</label>
+      </div>
+
+      <div class="sec-label">punkty uszu</div>
+      <input class="model-input" id="mdl-ears" type="text" value="127,234,93,132,356,454,323,361">
+      <div class="model-row" style="margin-top:6px">
+        <button class="model-btn" id="mdl-ears-apply">Aktualizuj uszy</button>
+      </div>
+
+      <div class="sec-label">proporcje modelu</div>
+      <div class="sk-slider-row">
+        <div class="sk-slider-lbl"><span>szerokość</span><span id="mdl-xv">1.00</span></div>
+        <input type="range" id="mdl-prop-x" min="0.75" max="1.35" step="0.01" value="1.00">
+      </div>
+      <div class="sk-slider-row">
+        <div class="sk-slider-lbl"><span>wysokość</span><span id="mdl-yv">1.00</span></div>
+        <input type="range" id="mdl-prop-y" min="0.75" max="1.35" step="0.01" value="1.00">
+      </div>
+      <div class="sk-slider-row">
+        <div class="sk-slider-lbl"><span>żuchwa</span><span id="mdl-jv">1.00</span></div>
+        <input type="range" id="mdl-prop-jaw" min="0.75" max="1.35" step="0.01" value="1.00">
+      </div>
+      <div class="sk-slider-row">
+        <div class="sk-slider-lbl"><span>uszy</span><span id="mdl-ev">1.00</span></div>
+        <input type="range" id="mdl-prop-ears" min="0.60" max="1.60" step="0.01" value="1.00">
+      </div>
+
+      <div class="model-row" style="margin-top:8px">
+        <button class="model-btn" id="mdl-apply">Zastosuj wzorzec</button>
+      </div>
     </div>
   </div>
 
@@ -508,6 +590,7 @@ function defaultLandmarks(gender) {
     templeR: { x: CX + headW*0.94,  y: hT + headH*0.22 },
     cheekR:  { x: CX + (f?headW*0.90:headW*0.96), y: hT + headH*0.62 },
     jawR:    { x: CX + (f?headW*0.60:headW*0.74), y: hT + headH*0.82 },
+    earR:    { x: CX + headW*1.00, y: hT + headH*0.55 },
     chin:    { x: CX,          y: hT + headH },
     browR:   { x: CX + (f?26:29),   y: hT + headH*0.435 },
     eyeR:    { x: CX + (f?27:31),   y: hT + headH*0.500 },
@@ -523,6 +606,7 @@ const POINT_META = {
   templeR: { label:'skroń',     color:'#ff9f40', symmetric:true  },
   cheekR:  { label:'policzek',  color:'#ff6b6b', symmetric:true  },
   jawR:    { label:'żuchwa',    color:'#c77dff', symmetric:true  },
+  earR:    { label:'ucho',      color:'#feca57', symmetric:true  },
   chin:    { label:'broda',     color:'#00f5c8', symmetric:false },
   browR:   { label:'brew',      color:'#74b9ff', symmetric:true  },
   eyeR:    { label:'oko',       color:'#55efc4', symmetric:true  },
@@ -702,8 +786,163 @@ document.getElementById('edit-btn').addEventListener('click', () => {
 const state = {
   gender:'f', eyes:'normal', nose:'normal', mouth:'normal', ears:'normal',
   skin:0, hair:'short', haircolor:0, eyecolor:0, beard:false, mustache:false, eyebrows:true,
-  glasses:false, hairpin:false, mood:'neutral'
+  glasses:false, hairpin:false, mood:'neutral', earScale:1
 };
+
+let activeMode = 'chargen';
+let modelPoints = null;
+let modelImage = null;
+let modelPreviewTf = { sx:1, sy:1, ox:0, oy:0 };
+
+const modelGroups = {
+  eyes: [33, 133, 362, 263, 159, 145, 386, 374],
+  pupils: [468, 473],
+  eyebrows: [124, 146, 53, 52, 65, 55, 353, 282, 283, 276, 285, 296],
+  nose: [1, 2, 98, 327, 168],
+  mouth: [13, 14, 78, 308, 87, 317],
+  jaw: [152, 172, 136, 150, 176, 148, 397],
+  temples: [127, 356],
+  ears: [127, 234, 93, 132, 356, 454, 323, 361]
+};
+
+const modelMesh = new FaceMesh({
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`
+});
+
+modelMesh.setOptions({
+  maxNumFaces: 1,
+  refineLandmarks: true,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
+
+modelMesh.onResults((results) => {
+  if (!results.multiFaceLandmarks || !results.multiFaceLandmarks[0]) return;
+  modelImage = results.image;
+  modelPoints = results.multiFaceLandmarks[0];
+  drawModelPreview();
+});
+
+function modelEnabledSet() {
+  const enabled = new Set();
+  const all = document.querySelector('.model-layer[data-layer="all"]').checked;
+  if (all) {
+    for (let i = 0; i <= 478; i++) enabled.add(i);
+    return enabled;
+  }
+  document.querySelectorAll('.model-layer').forEach((cb) => {
+    if (!cb.checked || cb.dataset.layer === 'all') return;
+    const arr = modelGroups[cb.dataset.layer] || [];
+    arr.forEach((idx) => enabled.add(idx));
+  });
+  return enabled;
+}
+
+function drawModelPreview() {
+  const cv = document.getElementById('mdl-preview');
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.fillStyle = '#030303';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  if (!modelImage) return;
+
+  const scale = Math.min(cv.width / modelImage.width, cv.height / modelImage.height);
+  const w = modelImage.width * scale;
+  const h = modelImage.height * scale;
+  const ox = (cv.width - w) * 0.5;
+  const oy = (cv.height - h) * 0.5;
+  modelPreviewTf = { sx: w, sy: h, ox, oy };
+
+  ctx.drawImage(modelImage, ox, oy, w, h);
+  if (!modelPoints) return;
+  const enabled = modelEnabledSet();
+  ctx.fillStyle = '#00f5c8';
+  modelPoints.forEach((pt, i) => {
+    if (!enabled.has(i)) return;
+    const x = ox + pt.x * w;
+    const y = oy + pt.y * h;
+    ctx.beginPath();
+    ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+function avgPoint(ids) {
+  if (!modelPoints) return null;
+  let sx = 0, sy = 0, c = 0;
+  ids.forEach((i) => {
+    const p = modelPoints[i];
+    if (!p) return;
+    sx += p.x;
+    sy += p.y;
+    c += 1;
+  });
+  if (!c) return null;
+  return { x: sx / c, y: sy / c };
+}
+
+function mapToLandmark(pt, detCX, topY, faceW, faceH, base, propX, propY) {
+  return {
+    x: CX + ((pt.x - detCX) * (base.faceW * propX)) / faceW,
+    y: base.top + ((pt.y - topY) * (base.faceH * propY)) / faceH
+  };
+}
+
+function applyModelTemplate() {
+  if (!modelPoints) return;
+
+  const propX = parseFloat(document.getElementById('mdl-prop-x').value);
+  const propY = parseFloat(document.getElementById('mdl-prop-y').value);
+  const propJaw = parseFloat(document.getElementById('mdl-prop-jaw').value);
+  const propEars = parseFloat(document.getElementById('mdl-prop-ears').value);
+
+  const top = modelPoints[10] || modelPoints[9];
+  const chin = modelPoints[152];
+  const leftTemple = modelPoints[127];
+  const rightTemple = modelPoints[356];
+  if (!top || !chin || !leftTemple || !rightTemple) return;
+
+  const faceH = Math.max(0.001, chin.y - top.y);
+  const faceW = Math.max(0.001, rightTemple.x - leftTemple.x);
+  const detCX = (leftTemple.x + rightTemple.x) * 0.5;
+
+  const def = defaultLandmarks(state.gender);
+  const base = {
+    top: def.crown.y,
+    faceH: def.chin.y - def.crown.y,
+    faceW: (def.templeR.x - CX) * 2
+  };
+
+  const templeR = mapToLandmark(modelPoints[356], detCX, top.y, faceW, faceH, base, propX, propY);
+  const cheekR = mapToLandmark(modelPoints[323] || modelPoints[454], detCX, top.y, faceW, faceH, base, propX, propY);
+  const jawR = mapToLandmark(modelPoints[397] || modelPoints[361], detCX, top.y, faceW, faceH, base, propX, propY);
+  const browR = mapToLandmark(avgPoint([296, 334, 282]) || modelPoints[296], detCX, top.y, faceW, faceH, base, propX, propY);
+  const eyeR = mapToLandmark(avgPoint([263, 362, 386, 374]) || modelPoints[263], detCX, top.y, faceW, faceH, base, propX, propY);
+  const nose = mapToLandmark(modelPoints[1] || modelPoints[2], detCX, top.y, faceW, faceH, base, propX, propY);
+  const mouth = mapToLandmark(avgPoint([13, 14, 78, 308]) || modelPoints[13], detCX, top.y, faceW, faceH, base, propX, propY);
+  const earSource = avgPoint(modelGroups.ears.filter((i) => i >= 300)) || modelPoints[356];
+  const earR = mapToLandmark(earSource, detCX, top.y, faceW, faceH, base, propX, propY);
+
+  P.crown = { x: CX, y: def.crown.y };
+  P.chin = { x: CX, y: def.crown.y + base.faceH * propY };
+  P.templeR = templeR;
+  P.cheekR = cheekR;
+  P.jawR = {
+    x: CX + (jawR.x - CX) * propJaw,
+    y: def.crown.y + (jawR.y - def.crown.y) * (0.94 + propJaw * 0.08)
+  };
+  P.earR = {
+    x: CX + (earR.x - CX) * (0.90 + propEars * 0.20),
+    y: def.crown.y + (earR.y - def.crown.y) * (0.90 + propEars * 0.12)
+  };
+  P.browR = browR;
+  P.eyeR = eyeR;
+  P.nose = { x: CX, y: nose.y };
+  P.mouth = { x: CX, y: mouth.y };
+  state.earScale = propEars;
+
+  draw();
+}
 
 const skinPalette = ['#FDDBB4','#F5C497','#E8A87C','#C68642','#8D5524','#5C3317'];
 const hairPalette = ['#1a0a04','#5C3317','#A0522D','#D2691E','#E8B84B','#F0E0C0','#AAAAAA','#e8e8e8','#CC3333','#3355CC'];
@@ -1318,11 +1557,11 @@ function _digitalDraw() {
   ctx.beginPath(); ctx.ellipse(cx,chinY+93, isFemale?84:102, 22, 0,0,Math.PI*2); ctx.fill();
 
   // EARS
-  const eaH = (earBot-earTop)*0.5;
-  const eaW = state.ears==='big'?15:state.ears==='small'?9:12;
-  const eaMY= (earTop+earBot)*0.5;
+  const eaH = ((earBot-earTop)*0.5) * state.earScale;
+  const eaW = (state.ears==='big'?15:state.ears==='small'?9:12) * state.earScale;
+  const eaMY= P.earR.y;
   [-1,1].forEach(s=>{
-    const ex=cx+s*(headW-eaW*0.25);
+    const ex=s>0?P.earR.x:(2*cx-P.earR.x);
     ctx.fillStyle=sk;
     ctx.beginPath(); ctx.ellipse(ex,eaMY,eaW,eaH,0,0,Math.PI*2); ctx.fill();
     ctx.fillStyle=skS;
@@ -1799,6 +2038,7 @@ function applySeed(seed){
   state.glasses=sr()>0.72;
   state.hairpin=sr()>0.75;
   state.mood=['neutral','focused','smile','angry'][Math.floor(sr()*4)];
+  state.earScale=1;
 
   if(state.gender==='f') P = defaultLandmarks('f');
   else P = defaultLandmarks('m');
@@ -1828,6 +2068,65 @@ document.getElementById('apply-seed').addEventListener('click',()=>{
 });
 document.getElementById('seed-input').addEventListener('keydown',e=>{
   if(e.key==='Enter') applySeed(e.target.value);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// UI BINDINGS — MODEL TAB
+// ═══════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.mode-tab').forEach((tab) => {
+  tab.addEventListener('click', () => {
+    activeMode = tab.dataset.mode;
+    document.querySelectorAll('.mode-tab').forEach((x) => x.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('chargen-controls').style.display = activeMode === 'chargen' ? 'block' : 'none';
+    document.getElementById('model-controls').style.display = activeMode === 'model' ? 'block' : 'none';
+  });
+});
+
+document.getElementById('mdl-upload').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => modelMesh.send({ image: img });
+  img.src = URL.createObjectURL(file);
+});
+
+document.querySelectorAll('.model-layer').forEach((cb) => {
+  cb.addEventListener('change', () => {
+    if (cb.dataset.layer === 'all') {
+      const st = cb.checked;
+      document.querySelectorAll('.model-layer').forEach((x) => {
+        if (x.dataset.layer !== 'all') x.checked = st;
+      });
+    }
+    drawModelPreview();
+  });
+});
+
+document.getElementById('mdl-ears-apply').addEventListener('click', () => {
+  const raw = document.getElementById('mdl-ears').value.trim();
+  const parsed = raw.split(',').map((x) => parseInt(x.trim(), 10)).filter((n) => Number.isFinite(n) && n >= 0);
+  if (parsed.length >= 2) {
+    modelGroups.ears = parsed;
+    drawModelPreview();
+  }
+});
+
+[
+  ['mdl-prop-x', 'mdl-xv'],
+  ['mdl-prop-y', 'mdl-yv'],
+  ['mdl-prop-jaw', 'mdl-jv'],
+  ['mdl-prop-ears', 'mdl-ev']
+].forEach(([id, out]) => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', function () {
+    document.getElementById(out).textContent = Number(this.value).toFixed(2);
+  });
+});
+
+document.getElementById('mdl-apply').addEventListener('click', () => {
+  applyModelTemplate();
 });
 
 // ═══════════════════════════════════════════════════════════════

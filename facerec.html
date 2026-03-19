@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>MediaPipe FaceMesh – interaktywna analiza twarzy</title>
+
+  <!-- Stabilna wersja FaceMesh działająca lokalnie -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    #panel {
+      width: 220px;
+      background: white;
+      padding: 15px;
+      border: 1px solid #ccc;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      cursor: crosshair;
+    }
+    .layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <div id="panel">
+    <h3>Warstwy punktów</h3>
+
+    <label><input type="checkbox" class="layer" data-layer="all" checked> Wszystkie punkty</label><br><br>
+
+    <label><input type="checkbox" class="layer" data-layer="eyes" checked> Oczy</label><br>
+    <label><input type="checkbox" class="layer" data-layer="eyebrows" checked> Brwi</label><br>
+    <label><input type="checkbox" class="layer" data-layer="nose" checked> Nos</label><br>
+    <label><input type="checkbox" class="layer" data-layer="mouth" checked> Usta</label><br>
+    <label><input type="checkbox" class="layer" data-layer="jaw" checked> Żuchwa</label><br>
+    <label><input type="checkbox" class="layer" data-layer="temples" checked> Skronie</label><br>
+  </div>
+
+  <div>
+    <h1>MediaPipe FaceMesh – interaktywna analiza twarzy</h1>
+    <input type="file" id="imageUpload" accept="image/*" />
+    <br>
+    <canvas id="canvas"></canvas>
+  </div>
+
+</div>
+
+<script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  let lastPoints = null;
+  let lastImage = null;
+  let hoverIndex = null;
+
+  const groups = {
+    eyes: [33, 133, 362, 263, 159, 145, 386, 374],
+    eyebrows: [70, 63, 105, 107, 336, 296, 334, 300],
+    nose: [1, 2, 98, 327, 168],
+    mouth: [13, 14, 78, 308, 87, 317],
+    jaw: [152, 172, 136, 150, 176, 148, 152],
+    temples: [127, 356]
+  };
+
+  const mesh = new FaceMesh({
+    locateFile: (file) =>
+      `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`
+  });
+
+  mesh.setOptions({
+    maxNumFaces: 1,
+    refineLandmarks: true,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
+
+  mesh.onResults((results) => {
+    if (!results.multiFaceLandmarks) return;
+
+    lastImage = results.image;
+    lastPoints = results.multiFaceLandmarks[0];
+
+    canvas.width = lastImage.width;
+    canvas.height = lastImage.height;
+
+    drawPoints();
+  });
+
+  function drawPoints() {
+    if (!lastImage || !lastPoints) return;
+
+    ctx.drawImage(lastImage, 0, 0);
+
+    const enabled = getEnabledLayers();
+
+    ctx.fillStyle = "blue";
+
+    lastPoints.forEach((pt, index) => {
+      if (!enabled.has(index)) return;
+
+      const x = pt.x * canvas.width;
+      const y = pt.y * canvas.height;
+
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    if (hoverIndex !== null) {
+      const pt = lastPoints[hoverIndex];
+      const x = pt.x * canvas.width;
+      const y = pt.y * canvas.height;
+
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "black";
+      ctx.font = "16px Arial";
+      ctx.fillText("Punkt " + hoverIndex, x + 8, y - 8);
+    }
+
+    const shape = detectFaceShape();
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial";
+    ctx.fillText("Kształt twarzy: " + shape, 10, 30);
+  }
+
+  function getEnabledLayers() {
+    const checkboxes = document.querySelectorAll(".layer");
+    const enabled = new Set();
+
+    const allOn = document.querySelector('[data-layer="all"]').checked;
+
+    if (allOn) {
+      for (let i = 0; i < 468; i++) enabled.add(i);
+      return enabled;
+    }
+
+    checkboxes.forEach(cb => {
+      if (!cb.checked || cb.dataset.layer === "all") return;
+
+      const group = groups[cb.dataset.layer];
+      if (group) group.forEach(i => enabled.add(i));
+    });
+
+    return enabled;
+  }
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (!lastPoints) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    hoverIndex = null;
+
+    lastPoints.forEach((pt, index) => {
+      const x = pt.x * canvas.width;
+      const y = pt.y * canvas.height;
+
+      const dx = mx - x;
+      const dy = my - y;
+
+      if (dx*dx + dy*dy < 6*6) {
+        hoverIndex = index;
+      }
+    });
+
+    drawPoints();
+  });
+
+  function detectFaceShape() {
+    if (!lastPoints) return "Brak danych";
+
+    const p = lastPoints;
+
+    const top = p[10];
+    const chin = p[152];
+    const leftTemple = p[127];
+    const rightTemple = p[356];
+    const jawLeft = p[172];
+    const jawRight = p[397];
+    const browLeft = p[70];
+    const browRight = p[300];
+
+    const faceHeight = distance(top, chin);
+    const faceWidth = distance(leftTemple, rightTemple);
+    const jawWidth = distance(jawLeft, jawRight);
+    const foreheadWidth = distance(browLeft, browRight);
+
+    const ratio = faceHeight / faceWidth;
+
+    if (ratio > 1.45) return "Prostokątna";
+    if (jawWidth > foreheadWidth * 1.1) return "Trójkątna";
+    if (Math.abs(jawWidth - foreheadWidth) < 10 && ratio < 1.35) return "Okrągła";
+    if (jawWidth > faceWidth * 0.9) return "Kwadratowa";
+
+    return "Owalna";
+  }
+
+  function distance(a, b) {
+    return Math.sqrt(
+      Math.pow(a.x - b.x, 2) +
+      Math.pow(a.y - b.y, 2)
+    );
+  }
+
+  document.querySelectorAll(".layer").forEach(cb => {
+    cb.addEventListener("change", () => {
+      if (cb.dataset.layer === "all") {
+        const state = cb.checked;
+        document.querySelectorAll(".layer").forEach(x => {
+          if (x.dataset.layer !== "all") x.checked = state;
+        });
+      }
+      drawPoints();
+    });
+  });
+
+  document.getElementById("imageUpload").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const img = new Image();
+    img.onload = () => mesh.send({ image: img });
+    img.src = URL.createObjectURL(file);
+  });
+</script>
+
+</body>
+</html>

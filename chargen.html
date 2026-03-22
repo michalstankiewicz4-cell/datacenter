@@ -255,6 +255,7 @@ canvas{
 .mode-tab.active{border-color:var(--acc);color:var(--acc);background:rgba(0,245,200,0.06)}
 
 #model-controls{display:none}
+#model-stage{display:none;width:100%;max-width:560px}
 .model-help{font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:0.08em;line-height:1.5}
 .model-layers{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px}
 .model-layers label{font-family:var(--mono);font-size:9px;color:var(--muted);display:flex;gap:5px;align-items:center}
@@ -263,17 +264,26 @@ canvas{
 .model-btn{border:1px solid var(--border2);padding:4px 8px;font-family:var(--mono);font-size:9px;letter-spacing:0.08em;cursor:pointer;background:transparent;color:var(--muted);text-transform:uppercase;transition:all 0.12s}
 .model-btn:hover{border-color:var(--acc);color:var(--acc)}
 .model-row{display:flex;gap:6px;align-items:center}
-.model-preview{width:100%;height:160px;border:1px solid var(--border2);background:#060606;display:block;cursor:crosshair}
+.model-preview{width:100%;height:430px;border:1px solid var(--border2);background:#000;display:block;cursor:crosshair}
+.model-stage-wrap{display:flex;flex-direction:column;gap:12px;width:100%}
+.model-card{border:1px solid var(--border2);padding:14px;background:#050505;position:relative;box-shadow:inset 0 0 0 1px rgba(0,245,200,0.04)}
+.model-card::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,245,200,0.014) 2px 3px);
+}
+.model-toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;width:100%;z-index:1}
+.model-toolbar .model-input{max-width:260px}
+.model-stage-meta{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;align-self:center}
+
+@media (max-width: 900px){
+  .model-toolbar{flex-direction:column;align-items:stretch}
+  .model-toolbar .model-input{max-width:none}
+}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="panel">
-    <div class="mode-tabs">
-      <div class="mode-tab active" data-mode="chargen">Generator</div>
-      <div class="mode-tab" data-mode="model">Wzorzec</div>
-    </div>
-
     <div id="chargen-controls">
     <div class="sec-label">płeć</div>
     <div class="row">
@@ -386,12 +396,8 @@ canvas{
 
     <div id="model-controls">
       <div class="sec-label">wzorzec twarzy</div>
-      <div class="model-help">Wczytaj zdjęcie, wybierz warstwy punktów i kliknij "Zastosuj wzorzec", aby wygenerować model twarzy.</div>
+      <div class="model-help">Opcje wzorca są aktywne tylko w trybie Wzorzec. Ustaw punkty i proporcje, a potem przenieś wynik do generatora.</div>
       <div class="divider"></div>
-
-      <div class="sec-label">obraz</div>
-      <input class="model-input" id="mdl-upload" type="file" accept="image/*">
-      <canvas id="mdl-preview" class="model-preview" width="220" height="160"></canvas>
 
       <div class="sec-label">warstwy punktów</div>
       <div class="model-layers">
@@ -405,12 +411,14 @@ canvas{
         <label><input type="checkbox" class="model-layer" data-layer="temples" checked> skronie</label>
         <label><input type="checkbox" class="model-layer" data-layer="ears" checked> uszy</label>
       </div>
+      <div class="divider"></div>
 
       <div class="sec-label">punkty uszu</div>
       <input class="model-input" id="mdl-ears" type="text" value="127,234,93,132,356,454,323,361">
-      <div class="model-row" style="margin-top:6px">
+      <div class="model-row" style="margin-top:8px">
         <button class="model-btn" id="mdl-ears-apply">Aktualizuj uszy</button>
       </div>
+      <div class="divider"></div>
 
       <div class="sec-label">proporcje modelu</div>
       <div class="sk-slider-row">
@@ -429,14 +437,14 @@ canvas{
         <div class="sk-slider-lbl"><span>uszy</span><span id="mdl-ev">1.00</span></div>
         <input type="range" id="mdl-prop-ears" min="0.60" max="1.60" step="0.01" value="1.00">
       </div>
-
-      <div class="model-row" style="margin-top:8px">
+      <div class="model-row" style="margin-top:10px">
         <button class="model-btn" id="mdl-apply">Zastosuj wzorzec</button>
       </div>
     </div>
   </div>
 
   <div class="canvas-area">
+    <div id="chargen-stage" style="display:flex;flex-direction:column;align-items:center;gap:18px;width:100%">
     <div style="display:flex;align-items:center;justify-content:space-between;width:100%;z-index:1">
       <div class="title-bar">// GENERATOR POSTACI v2.0</div>
       <div style="display:flex;gap:8px;align-items:center">
@@ -461,9 +469,29 @@ canvas{
       <div class="mood-btn" data-mood="angry">zły</div>
     </div>
     <div class="seed-display" id="seed-display">SEED: 42</div>
+    </div>
+
+    <div id="model-stage">
+      <div class="model-stage-wrap">
+        <div class="model-toolbar">
+          <div class="title-bar">// WZORZEC TWARZY</div>
+          <input class="model-input" id="mdl-upload" type="file" accept="image/*">
+        </div>
+        <div class="model-card">
+          <canvas id="mdl-preview" class="model-preview" width="540" height="430"></canvas>
+        </div>
+        <div class="model-stage-meta">PODGLĄD LANDMARKÓW I WZORCA PROPORCJI</div>
+      </div>
+    </div>
   </div>
 
   <div class="right-panel">
+    <div class="rpanel-label">tryb</div>
+    <div class="mode-tabs" style="margin-bottom:2px">
+      <div class="mode-tab active" data-mode="chargen">Generator</div>
+      <div class="mode-tab" data-mode="model">Wzorzec</div>
+    </div>
+
     <!-- ── STYL ── -->
     <div class="rpanel-label">styl</div>
     <div class="style-switch">
@@ -2081,6 +2109,8 @@ document.querySelectorAll('.mode-tab').forEach((tab) => {
     tab.classList.add('active');
     document.getElementById('chargen-controls').style.display = activeMode === 'chargen' ? 'block' : 'none';
     document.getElementById('model-controls').style.display = activeMode === 'model' ? 'block' : 'none';
+    document.getElementById('chargen-stage').style.display = activeMode === 'chargen' ? 'flex' : 'none';
+    document.getElementById('model-stage').style.display = activeMode === 'model' ? 'block' : 'none';
   });
 });
 

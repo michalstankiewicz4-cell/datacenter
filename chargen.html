@@ -558,6 +558,16 @@ canvas{
         </div>
         <input type="range" id="all-lp" min="0" max="100" value="40" step="5">
       </div>
+      <div class="sk-slider-row">
+        <div class="sk-slider-lbl">
+          <span style="display:flex;align-items:center;gap:5px">
+            <span style="width:8px;height:8px;border-radius:50%;background:#7a9cff;display:inline-block"></span>
+            voronoi
+          </span>
+          <span id="all-vr-v">35%</span>
+        </div>
+        <input type="range" id="all-vr" min="0" max="100" value="35" step="5">
+      </div>
       <div style="height:1px;background:var(--border2);margin:2px 0"></div>
       <div class="rpanel-sub">tryb mieszania</div>
       <div class="psize-opts" style="flex-direction:column;gap:3px">
@@ -984,7 +994,7 @@ let renderStyle = 'digital'; // 'digital' | 'sketch' | 'overlay'
 let skDrawSeed  = 42;
 
 const SK  = { jitter:3, weight:1.6, sketchiness:2, fill:'wash', overlayOpacity:0.70 };
-const ALL = { digital:1.0, sketch:0.70, lowpoly:0.40, blendMode:'normal' };
+const ALL = { digital:1.0, sketch:0.70, lowpoly:0.40, voronoi:0.35, blendMode:'normal' };
 
 // haircolor mapping: chargen 0-9 → sketchgen 0-8
 const SKETCH_HC_MAP = [0,1,2,3,3,4,5,6,7,8];
@@ -2552,11 +2562,59 @@ function _voronoiDraw(ctx) {
     }
   }
 
-  // ── Draw each block ─────────────────────────────────────────
-  // Group blocks by seed → draw rectangles batch per color
-  // Then overdraw edges with thin lines
+  // ── Build face + neck clip path ─────────────────────────────
+  // Same bezier as _digitalDraw so outline matches exactly
+  function buildFacePath(ctx2) {
+    ctx2.beginPath();
+    // neck
+    const nkW2 = isFemale ? 26 : 34;
+    ctx2.moveTo(cx - nkW2, chinY - 4);
+    ctx2.bezierCurveTo(cx-nkW2-4, chinY+22, cx-nkW2-2, chinY+70, cx-nkW2+8, chinY+90);
+    ctx2.lineTo(cx + nkW2 - 8, chinY + 90);
+    ctx2.bezierCurveTo(cx+nkW2+2, chinY+70, cx+nkW2+4, chinY+22, cx+nkW2, chinY-4);
+    // face outline (clockwise from chin-right back to chin-left via crown)
+    ctx2.bezierCurveTo(cx+jawX*0.65, jawY+(chinY-jawY)*0.6, cx+(isFemale?16:22), chinY-3, cx, chinY);
+    // left jaw up
+    ctx2.bezierCurveTo(cx-(isFemale?16:22), chinY-3, cx-jawX*0.65, jawY+(chinY-jawY)*0.6, cx-jawX, jawY);
+    ctx2.bezierCurveTo(cx-jawX-6, jawY-(jawY-cheekY)*0.08, cx-cheekX, cheekY+(jawY-cheekY)*0.55, cx-cheekX, cheekY);
+    ctx2.bezierCurveTo(cx-cheekX, cheekY-(cheekY-tempY)*0.15, cx-tempX, tempY+(cheekY-tempY)*0.4, cx-tempX, tempY);
+    ctx2.bezierCurveTo(cx-tempX, crownY+(tempY-crownY)*0.3, cx-headW*0.55, crownY, cx, crownY);
+    // right side down
+    ctx2.bezierCurveTo(cx+headW*0.55, crownY, cx+tempX, crownY+(tempY-crownY)*0.3, cx+tempX, tempY);
+    ctx2.bezierCurveTo(cx+tempX, tempY+(cheekY-tempY)*0.4, cx+cheekX, cheekY-(cheekY-tempY)*0.15, cx+cheekX, cheekY);
+    ctx2.bezierCurveTo(cx+cheekX, cheekY+(jawY-cheekY)*0.55, cx+jawX+6, jawY-(jawY-cheekY)*0.08, cx+jawX, jawY);
+    ctx2.bezierCurveTo(cx+jawX*0.65, jawY+(chinY-jawY)*0.6, cx+(isFemale?16:22), chinY-3, cx-nkW2, chinY-4);
+    ctx2.closePath();
+  }
 
-  // Draw filled blocks
+  // ── BG (canvas outside face) ─────────────────────────────────
+  // Fill scanline BG first
+  ctx.fillStyle='#050505'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(0,245,200,0.010)';
+  for(let y=0;y<H;y+=2) ctx.fillRect(0,y,W,1);
+
+  // ── Draw ears (outside face clip, behind face) ───────────────
+  const eaBaseW = state.ears==='big'?15:state.ears==='small'?9:12;
+  const eaBaseH = state.ears==='big'?22:state.ears==='small'?14:18;
+  [-1,1].forEach(s=>{
+    const ex = cx + s*(headW - eaBaseW*0.25);
+    const ey = earY;
+    // ear Voronoi tones
+    const earSeed = seeds.find(sd=>sd.zone==='ear' && (s>0 ? sd.x>cx : sd.x<cx));
+    ctx.fillStyle = earSeed ? earSeed.col : sk;
+    ctx.beginPath(); ctx.ellipse(ex, ey, eaBaseW, eaBaseH, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.45)'; ctx.lineWidth=0.8;
+    ctx.stroke();
+    ctx.fillStyle = shade(sk,-28);
+    ctx.beginPath(); ctx.ellipse(ex+s*1.5, ey, eaBaseW*0.5, eaBaseH*0.56, 0, 0, Math.PI*2); ctx.fill();
+  });
+
+  // ── Clip all Voronoi rendering to face+neck shape ─────────────
+  ctx.save();
+  buildFacePath(ctx);
+  ctx.clip();
+
+  // ── Draw filled blocks (inside clip) ─────────────────────────
   for (let by = 0; by < bH; by++) {
     for (let bx = 0; bx < bW; bx++) {
       const idx = cellOf[by * bW + bx];
@@ -2565,25 +2623,21 @@ function _voronoiDraw(ctx) {
     }
   }
 
-  // Draw Voronoi edges: scan for cell boundaries
-  ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+  // ── Voronoi edges inside clip ─────────────────────────────────
+  ctx.strokeStyle = 'rgba(0,0,0,0.50)';
   ctx.lineWidth = 0.8;
-
   for (let by = 0; by < bH - 1; by++) {
     for (let bx = 0; bx < bW - 1; bx++) {
       const c00 = cellOf[by*bW + bx];
       const c10 = cellOf[by*bW + bx + 1];
       const c01 = cellOf[(by+1)*bW + bx];
-      const c11 = cellOf[(by+1)*bW + bx + 1];
       const px = bx * CELL_RES, py = by * CELL_RES;
-      // Horizontal edge
       if (c00 !== c01) {
         ctx.beginPath();
         ctx.moveTo(px, py + CELL_RES);
         ctx.lineTo(px + CELL_RES, py + CELL_RES);
         ctx.stroke();
       }
-      // Vertical edge
       if (c00 !== c10) {
         ctx.beginPath();
         ctx.moveTo(px + CELL_RES, py);
@@ -2592,6 +2646,17 @@ function _voronoiDraw(ctx) {
       }
     }
   }
+
+  // end clip
+  ctx.restore();
+
+  // ── Face outline stroke (on top of clip edge) ─────────────────
+  ctx.save();
+  buildFacePath(ctx);
+  ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
 
   // ── Draw face features on top ────────────────────────────────
   // Eyes
@@ -2756,6 +2821,11 @@ function draw() {
       skSrng(((skDrawSeed * 6364136223846793005 + 1442695040888963407) | 0) || 1);
       drawSketchFace(octx3, W_CV, H_CV, mapStateForSketch(), true);
     }, ALL.sketch);
+
+    // 4. Voronoi layer
+    compositeLayer(octx4 => {
+      _voronoiDraw(octx4);
+    }, ALL.voronoi);
 
     // HUD corners always on top
     ctx.globalCompositeOperation = 'source-over';
@@ -3002,6 +3072,11 @@ document.getElementById('all-sk').addEventListener('input',function(){
 document.getElementById('all-lp').addEventListener('input',function(){
   ALL.lowpoly=parseInt(this.value)/100;
   document.getElementById('all-lp-v').textContent=this.value+'%';
+  draw();
+});
+document.getElementById('all-vr').addEventListener('input',function(){
+  ALL.voronoi=parseInt(this.value)/100;
+  document.getElementById('all-vr-v').textContent=this.value+'%';
   draw();
 });
 // blend mode buttons
